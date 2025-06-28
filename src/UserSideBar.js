@@ -69,6 +69,58 @@ export default function SideBar() {
         Log Out
       </button>
       <hr className="text-white w-100 my-2" />
+      {/* 🛠️ Admin Control Panel (Visible only to admin) */}
+      {userInfo?.role === "admin" && (
+        <div className="accordion w-100 mb-3" id="adminAccordion">
+          <div
+            className="accordion-item"
+            style={{ backgroundColor: "#1e1e2f", border: "none" }}
+          >
+            <h2 className="accordion-header" id="adminHeading">
+              <button
+                className="accordion-button collapsed text-white"
+                style={{ backgroundColor: "#2e2e3e" }}
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#adminCollapse"
+                aria-expanded="false"
+                aria-controls="adminCollapse"
+              >
+                🛠️ Admin Control Panel
+              </button>
+            </h2>
+            <div
+              id="adminCollapse"
+              className="accordion-collapse collapse"
+              aria-labelledby="adminHeading"
+              data-bs-parent="#adminAccordion"
+            >
+              <div className="accordion-body px-2">
+                <ul className="list-unstyled text-white">
+                  <li
+                    className="sidebar-item"
+                    onClick={() => navigate("/admin/users")}
+                  >
+                    📁 Manage Users
+                  </li>
+                  <li
+                    className="sidebar-item"
+                    onClick={() => navigate("/admin/expenses")}
+                  >
+                    🧾 View All Expenses
+                  </li>
+                  <li
+                    className="sidebar-item"
+                    onClick={() => navigate("/admin/reports")}
+                  >
+                    📊 Admin Reports
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ⚡ Quick Actions */}
       <div className="w-100 px-2 mb-3">
