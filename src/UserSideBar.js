@@ -99,19 +99,19 @@ export default function SideBar() {
                 <ul className="list-unstyled text-white">
                   <li
                     className="sidebar-item"
-                    onClick={() => navigate("/admin/users")}
+                    onClick={() => navigate("/adminpanel")}
                   >
                     📁 Manage Users
                   </li>
                   <li
                     className="sidebar-item"
-                    onClick={() => navigate("/admin/expenses")}
+                    onClick={() => navigate("/adminpanel")}
                   >
                     🧾 View All Expenses
                   </li>
                   <li
                     className="sidebar-item"
-                    onClick={() => navigate("/admin/reports")}
+                    onClick={() => navigate("/adminpanel")}
                   >
                     📊 Admin Reports
                   </li>
