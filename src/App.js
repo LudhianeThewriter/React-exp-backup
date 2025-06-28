@@ -25,7 +25,7 @@ export default function App() {
         <BudgetProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<h1>Home</h1>} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/user" element={<UserReg />} />
               <Route path="/dashboard" element={<DashBoard />} />
               <Route path="/analysis" element={<AnalysisBot />} />
