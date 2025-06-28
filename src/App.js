@@ -33,6 +33,7 @@ export default function App() {
               <Route path="/addExp" element={<AddNew />} />
               <Route path="/budget" element={<Budget />} />
               <Route path="/report" element={<MonthlyReport />} />
+              <Route path='/adminpanel' element={} />
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
           </BrowserRouter>
