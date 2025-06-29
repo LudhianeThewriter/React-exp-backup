@@ -147,9 +147,7 @@ export default function App() {
                 fill="#0d6efd"
                 fontFamily="Poppins, sans-serif"
                 fontSize="30"
-              >
-                Expencer
-              </text>
+              ></text>
             </svg>
           </a>
           <button
