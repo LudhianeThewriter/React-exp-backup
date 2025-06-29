@@ -35,7 +35,7 @@ export default function App() {
               <Route path="/addExp" element={<AddNew />} />
               <Route path="/budget" element={<Budget />} />
               <Route path="/report" element={<MonthlyReport />}
-               draft/quirky-jennings
+               
               <Route path="/adminpanel" element={<AdminDashboardPage />} />
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
