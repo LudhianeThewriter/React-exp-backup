@@ -140,15 +140,7 @@ export default function App() {
       >
         <div className="container-fluid px-4">
           <a className="navbar-brand fw-bold" href="#">
-            <svg width="150" height="60" viewBox="00 10 300 100">
-              <text
-                x="0"
-                y="65"
-                fill="#0d6efd"
-                fontFamily="Poppins, sans-serif"
-                fontSize="30"
-              ></text>
-            </svg>
+            Expencer
           </a>
           <button
             className="navbar-toggler"
