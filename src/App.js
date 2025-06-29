@@ -15,6 +15,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Budget from "./Budget";
 import MonthlyReport from "./MonthlyReport";
+import AdminDashboardPage from './Adminpanel';
 
 //import AddExpenseForm from "./AddNewExpense";
 import AddNew from "./AddNewExpense";
@@ -33,7 +34,8 @@ export default function App() {
 
               <Route path="/addExp" element={<AddNew />} />
               <Route path="/budget" element={<Budget />} />
-              <Route path="/report" element={<MonthlyReport />} />
+              <Route path="/report" element={<MonthlyReport />}
+               draft/quirky-jennings
               <Route path="/adminpanel" element={<AdminDashboardPage />} />
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
