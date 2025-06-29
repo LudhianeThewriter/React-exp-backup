@@ -299,7 +299,6 @@ export default function App() {
           <p className="lead">Be Relaxed and Focus on Analysis</p>
         </section>
 
-        {/* Section 3-5: Category, Savings, Budget */}
         <section className="mb-5">
           <h2 className="text-center mb-4">In-Depth Insights</h2>
           <div className="row g-4">
@@ -318,6 +317,11 @@ export default function App() {
               >
                 <h5 className="text-center">Category-wise Spending</h5>
                 <CategoryAnimate />
+                <p className="mt-3 small text-muted text-center">
+                  Understand how your expenses are distributed across different
+                  categories like food, travel, and utilities. Make better
+                  spending decisions.
+                </p>
               </div>
             </motion.div>
 
@@ -336,6 +340,10 @@ export default function App() {
               >
                 <h5 className="text-center">Savings Over Time</h5>
                 <IncreasedMoney />
+                <p className="mt-3 small text-muted text-center">
+                  Track how your savings grow month-by-month and stay motivated
+                  to reach your financial goals.
+                </p>
               </div>
             </motion.div>
 
@@ -354,6 +362,10 @@ export default function App() {
               >
                 <h5 className="text-center">Budget vs Expense</h5>
                 <BudgetAnimate />
+                <p className="mt-3 small text-muted text-center">
+                  See if you are staying within your budget or overspending, and
+                  adjust your habits accordingly.
+                </p>
               </div>
             </motion.div>
           </div>
@@ -424,13 +436,155 @@ export default function App() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="text-center mt-5 pt-4 border-top">
-          <small className="text-muted">
-            &copy; 2025 Expencer. All rights reserved.
-          </small>
-        </footer>
+        {/* Feedback Form Section */}
+        <section className="my-5">
+          <h2 className="text-center mb-4">We Value Your Feedback</h2>
+          <div
+            className="card p-4 mx-auto shadow"
+            style={{ maxWidth: "600px" }}
+          >
+            <form>
+              <div className="mb-3">
+                <label htmlFor="userName" className="form-label fw-semibold">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="userName"
+                  placeholder="Your name"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="userLocation"
+                  className="form-label fw-semibold"
+                >
+                  Location
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="userLocation"
+                  placeholder="City, Country"
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="userFeedback"
+                  className="form-label fw-semibold"
+                >
+                  Your Feedback
+                </label>
+                <textarea
+                  className="form-control"
+                  id="userFeedback"
+                  rows="3"
+                  placeholder="Share your thoughts..."
+                ></textarea>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="userRating" className="form-label fw-semibold">
+                  Rating
+                </label>
+                <select className="form-select" id="userRating">
+                  <option value="5">★★★★★ - Excellent</option>
+                  <option value="4">★★★★☆ - Good</option>
+                  <option value="3">★★★☆☆ - Average</option>
+                  <option value="2">★★☆☆☆ - Poor</option>
+                  <option value="1">★☆☆☆☆ - Bad</option>
+                </select>
+              </div>
+              <button type="submit" className="btn btn-primary w-100">
+                Submit Feedback
+              </button>
+            </form>
+          </div>
+        </section>
       </div>
+      {/* Container Ends*/}
+      {/* Footer */}
+      <footer className="mt-5 pt-5 pb-3 bg-dark text-white">
+        <div className="container">
+          <div className="row">
+            {/* Company Info */}
+            <div className="col-md-4 mb-4">
+              <h5 className="fw-bold">Expencer</h5>
+              <p className="text-light small">
+                Smart expense tracking to help you save more and spend wisely.
+                Join thousands on the journey to financial freedom.
+              </p>
+            </div>
+
+            {/* Explore Links */}
+            <div className="col-md-4 mb-4">
+              <h6 className="fw-bold mb-3">Explore</h6>
+              <ul className="list-unstyled">
+                <li>
+                  <a
+                    href="#category"
+                    className="text-decoration-none text-light"
+                  >
+                    Category Analysis
+                  </a>
+                </li>
+                <li>
+                  <a href="#date" className="text-decoration-none text-light">
+                    Date-wise Insights
+                  </a>
+                </li>
+                <li>
+                  <a href="#report" className="text-decoration-none text-light">
+                    Monthly Report
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#pricing"
+                    className="text-decoration-none text-light"
+                  >
+                    Pricing
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social Links & Contact */}
+            <div className="col-md-4 mb-4">
+              <h6 className="fw-bold mb-3">Connect With Us</h6>
+              <div className="d-flex gap-3 mb-2">
+                <a href="#" className="text-light fs-5">
+                  <i className="bi bi-facebook"></i>
+                </a>
+                <a href="#" className="text-light fs-5">
+                  <i className="bi bi-twitter-x"></i>
+                </a>
+                <a href="#" className="text-light fs-5">
+                  <i className="bi bi-instagram"></i>
+                </a>
+                <a href="#" className="text-light fs-5">
+                  <i className="bi bi-linkedin"></i>
+                </a>
+              </div>
+              <p className="text-light small">
+                Email us at{" "}
+                <a
+                  href="mailto:support@expencer.com"
+                  className="text-decoration-none text-white"
+                >
+                  support@expencer.com
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <hr className="border-secondary" />
+
+          <div className="text-center text-light small">
+            &copy; 2025 Expencer. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

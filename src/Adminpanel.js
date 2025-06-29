@@ -28,8 +28,8 @@ export default function AdminDashboardPage() {
                 <td>Male</td>
                 <td>2024-12-01</td>
                 <td>
-                  <button className="btn btn-sm btn-warning me-2">Block</button>
-                  <button className="btn btn-sm btn-danger">Delete</button>
+                  <button className="btn btn-warning btn-sm me-2">Block</button>
+                  <button className="btn btn-danger btn-sm">Delete</button>
                 </td>
               </tr>
               <tr>
@@ -38,8 +38,8 @@ export default function AdminDashboardPage() {
                 <td>Female</td>
                 <td>2025-01-15</td>
                 <td>
-                  <button className="btn btn-sm btn-warning me-2">Block</button>
-                  <button className="btn btn-sm btn-danger">Delete</button>
+                  <button className="btn btn-warning btn-sm me-2">Block</button>
+                  <button className="btn btn-danger btn-sm">Delete</button>
                 </td>
               </tr>
               <tr>
@@ -48,8 +48,8 @@ export default function AdminDashboardPage() {
                 <td>Other</td>
                 <td>2025-03-03</td>
                 <td>
-                  <button className="btn btn-sm btn-warning me-2">Block</button>
-                  <button className="btn btn-sm btn-danger">Delete</button>
+                  <button className="btn btn-warning btn-sm me-2">Block</button>
+                  <button className="btn btn-danger btn-sm">Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
         { label: "Reports Generated", value: "780", color: "#fd7e14" },
       ],
       extra: (
-        <ul className="mt-4 list-group list-group-flush">
+        <ul className="list-group mt-4">
           <li className="list-group-item bg-dark text-white">
             New Registrations Report
           </li>
@@ -135,104 +135,91 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div
-      className="d-flex"
-      style={{ minHeight: "100vh", backgroundColor: "#15151f", color: "white" }}
-    >
-      {/* Sidebar */}
-      <aside
-        style={{
-          width: "260px",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          backgroundColor: "#1e1e2f",
-          overflowY: "auto",
-        }}
-      >
-        <SideBar />
-      </aside>
+    <div className="container-fluid bg-dark text-white min-vh-100">
+      <div className="row">
+        <aside className="col-md-3 col-lg-2 bg-secondary p-0 vh-100 sticky-top">
+          <SideBar />
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-grow-1 p-4">
-        <h1 className="h3 mb-4">🛠️ Admin Dashboard</h1>
+        <main className="col-md-9 col-lg-10 py-4">
+          <h1 className="h3 mb-4">🛠️ Admin Dashboard</h1>
 
-        <div className="accordion" id="adminAccordion">
-          {adminSections.map((section, index) => (
-            <div
-              className="accordion-item bg-transparent border border-secondary mb-3 rounded"
-              key={index}
-            >
-              <h2 className="accordion-header">
-                <button
-                  className="accordion-button bg-dark text-white"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target={`#collapse-${index}`}
-                  aria-expanded="false"
-                  aria-controls={`collapse-${index}`}
-                >
-                  {section.title}
-                </button>
-              </h2>
+          <div className="accordion" id="adminAccordion">
+            {adminSections.map((section, index) => (
               <div
-                id={`collapse-${index}`}
-                className="accordion-collapse collapse"
-                data-bs-parent="#adminAccordion"
+                className="accordion-item bg-dark border border-secondary mb-3"
+                key={index}
               >
-                <div className="accordion-body">
-                  <div className="row g-3">
-                    {section.stats.map((stat, i) => (
-                      <div className="col-md-6" key={i}>
-                        <div
-                          className="card text-white"
-                          style={{ backgroundColor: "#2e2e3e" }}
-                        >
-                          <div className="card-body">
-                            <h6
-                              className="card-title mb-2"
-                              style={{ fontSize: "0.9rem" }}
-                            >
-                              {stat.label}
-                            </h6>
-                            <h4
-                              className="card-text"
-                              style={{ color: stat.color }}
-                            >
-                              {stat.value}
-                            </h4>
+                <h2 className="accordion-header">
+                  <button
+                    className="accordion-button bg-secondary text-white"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target={`#collapse-${index}`}
+                    aria-expanded="false"
+                    aria-controls={`collapse-${index}`}
+                  >
+                    {section.title}
+                  </button>
+                </h2>
+                <div
+                  id={`collapse-${index}`}
+                  className="accordion-collapse collapse"
+                  data-bs-parent="#adminAccordion"
+                >
+                  <div className="accordion-body">
+                    <div className="row g-3">
+                      {section.stats.map((stat, i) => (
+                        <div className="col-md-6" key={i}>
+                          <div className="card bg-secondary text-white">
+                            <div className="card-body">
+                              <h6
+                                className="card-title mb-2"
+                                style={{ fontSize: "0.9rem" }}
+                              >
+                                {stat.label}
+                              </h6>
+                              <h4
+                                className="card-text"
+                                style={{ color: stat.color }}
+                              >
+                                {stat.value}
+                              </h4>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                  {section.bar && (
-                    <div className="mt-3">
-                      <div
-                        className="bg-secondary rounded-pill"
-                        style={{ height: "8px", overflow: "hidden" }}
-                      >
-                        <div
-                          className="rounded-pill"
-                          style={{
-                            width: `${section.bar.percent}%`,
-                            backgroundColor: section.bar.color,
-                            height: "100%",
-                          }}
-                        ></div>
-                      </div>
-                      <small className="text-muted mt-1 d-block">
-                        {section.bar.percent}% used
-                      </small>
+                      ))}
                     </div>
-                  )}
-                  {section.extra && <div className="mt-4">{section.extra}</div>}
+                    {section.bar && (
+                      <div className="mt-3">
+                        <div className="progress">
+                          <div
+                            className="progress-bar"
+                            role="progressbar"
+                            style={{
+                              width: `${section.bar.percent}%`,
+                              backgroundColor: section.bar.color,
+                            }}
+                            aria-valuenow={section.bar.percent}
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <small className="text-muted mt-1 d-block">
+                          {section.bar.percent}% used
+                        </small>
+                      </div>
+                    )}
+                    {section.extra && (
+                      <div className="mt-4">{section.extra}</div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </main>
+            ))}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
