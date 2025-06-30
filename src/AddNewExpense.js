@@ -21,6 +21,7 @@ export default function AddNew({ onAdd }) {
   const categories = [
     "Milk & Newspaper",
     "Fruits & Vegetables",
+    "Rent",
     "Food",
     "Groceries",
     "Loan , Repayments & Interest",
