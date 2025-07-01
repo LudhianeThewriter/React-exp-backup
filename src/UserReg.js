@@ -36,6 +36,7 @@ export default function UserReg() {
   const [autolocation, setAutoLocation] = useState("");
   const [emailVerified, setEmailVerified] = useState(true);
   const [unverifiedUser, setUnverifiedUser] = useState(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -67,6 +68,9 @@ export default function UserReg() {
         username: userName,
         gender: gender,
         createdAt: new Date(),
+        lat: coordinates.lat,
+        long: coordinates.long,
+        role: "user",
       });
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {

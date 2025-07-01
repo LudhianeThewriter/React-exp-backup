@@ -21,18 +21,17 @@ exports.deleteUserById = functions.https.onCall(async (data, context) => {
 
 // Block Users by disabling their account (Admin only)
 
-export.blockUserById = functions.https.onCall(async ( data, context) => {
-    if(!context.auth?.token.admin){
-        throw new functions.https.HttpsError('permission-denied','Admin only')
-    }
+exports.blockUserById = functions.https.onCall(async (data, context) => {
+  if (!context.auth?.token.admin) {
+    throw new functions.https.HttpsError("permission-denied", "Admin only");
+  }
 
-    const uid = data.uid;
+  const uid = data.uid;
 
-
-    try{
-        await admin.auth().updateUser(uid, {disabled:true})
-        return {message : ` User ${uid} has been blocked`}
-    }catch(error){
-        throw new functions.https.HttpsError('internal',error.message)
-    }
-})
+  try {
+    await admin.auth().updateUser(uid, { disabled: true });
+    return { message: ` User ${uid} has been blocked` };
+  } catch (error) {
+    throw new functions.https.HttpsError("internal", error.message);
+  }
+});
