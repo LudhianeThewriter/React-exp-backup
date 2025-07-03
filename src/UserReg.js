@@ -60,6 +60,7 @@ export default function UserReg() {
         userEmail,
         userPassword
       );
+
       await sendEmailVerification(userCredential.user);
       setStatus("Verification Email Sent. Please Check your Inbox");
 

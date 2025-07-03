@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase";
 import { signOut } from "firebase/auth";
 import { AuthContext } from "./AuthContext";
+import { FaRocket } from "react-icons/fa";
 
 export default function SideBar() {
   const { userInfo } = useContext(AuthContext);
@@ -262,6 +263,13 @@ export default function SideBar() {
             </div>
           </div>
         </div>
+        <button
+          className="btn btn-primary d-flex align-items-center gap-2"
+          onClick={() => navigate("/pricing")}
+        >
+          <FaRocket />
+          Upgrade
+        </button>
       </div>
 
       {/* Custom CSS */}
