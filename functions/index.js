@@ -12,23 +12,21 @@ exports.autoGrantBaseAdmin = functions.auth.user().onCreate(async (user) => {
 });
 // Delete User by UID
 
-exports.exports.deleteUserById = functions.https.onCall(
-  async (data, context) => {
-    // only allow users with admin claim
-    if (!context.auth?.token.admin) {
-      throw new functions.https.HttpsError("permission-denied", "Admins Only");
-    }
-
-    const uid = data.uid;
-
-    try {
-      await admin.auth().deleteUser(uid);
-      return { message: `User ${uid} deleted successfully` };
-    } catch (error) {
-      throw new functions.https.HttpsError("internal", error.message);
-    }
+exports.deleteUserById = functions.https.onCall(async (data, context) => {
+  // only allow users with admin claim
+  if (!context.auth?.token.admin) {
+    throw new functions.https.HttpsError("permission-denied", "Admins Only");
   }
-);
+
+  const uid = data.uid;
+
+  try {
+    await admin.auth().deleteUser(uid);
+    return { message: `User ${uid} deleted successfully` };
+  } catch (error) {
+    throw new functions.https.HttpsError("internal", error.message);
+  }
+});
 
 // Block Users by disabling their account (Admin only)
 
