@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import SideBar from "./UserSideBar";
+import { auth } from "./firebase";
 
 export default function AdminDashboardPage() {
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdTokenResult();
+        if (!token.claims.admin) {
+          alert("access-denined");
+          navigate("/");
+        } else {
+          navigate("/");
+        }
+      }
+    };
+  });
+
   const adminSections = [
     {
       title: "👥 Manage Users",
