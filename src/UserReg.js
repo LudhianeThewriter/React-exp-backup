@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import {
   createUserWithEmailAndPassword,
@@ -36,7 +37,7 @@ export default function UserReg() {
   const [autolocation, setAutoLocation] = useState("");
   const [emailVerified, setEmailVerified] = useState(true);
   const [unverifiedUser, setUnverifiedUser] = useState(null);
-
+  const baseMail = "sharmakaran7910929@gmail.com";
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -64,6 +65,11 @@ export default function UserReg() {
       await sendEmailVerification(userCredential.user);
       setStatus("Verification Email Sent. Please Check your Inbox");
 
+      const isAdmin =
+        baseMail.toLowerCase() == userCredential.user.email.toLowerCase();
+      const role = isAdmin ? "admin" : "user";
+      const plan = isAdmin ? "all" : "regular";
+
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email: userCredential.user.email,
         username: userName,
@@ -71,8 +77,21 @@ export default function UserReg() {
         createdAt: new Date(),
         lat: coordinates.lat,
         long: coordinates.long,
-        role: "user",
+        role: role,
+        plan: plan,
       });
+
+      if (isAdmin) {
+        const functions = getFunctions();
+        const setUserRole = httpsCallable(functions, "setUserRole");
+
+        await setUserRole({
+          uid: userCredential.user.uid,
+          role: "admin",
+        });
+
+        await auth.currentUser.getIdToken(true);
+      }
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         setStatus("Email already Registered");
@@ -119,7 +138,7 @@ export default function UserReg() {
         await signOut(auth);
       } else {
         setUser(userCredential.user);
-        setStatus("Signed In Successfully");
+
         navigate("/dashboard");
       }
     } catch (error) {

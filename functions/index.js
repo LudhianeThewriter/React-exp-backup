@@ -1,6 +1,28 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
+
+// Setting role of User
+
+exports.setUserRole = functions.https.onCall(async (data, context) => {
+  if (!context.auth?.token.admin) {
+    throw new functions.https.HttpsError("permission-denied", "Admin-Only");
+  }
+
+  const { uid, role } = data;
+
+  if (!["admin", "user"].includes(role)) {
+    throw new functions.https.HttpsError("invalid-argument", "Invalid-role");
+  }
+
+  try {
+    await admin.auth().setCustomUserClaims(uid, { admin: role == "admin" });
+    return { message: `Role of user ${uid} has been set to ${role}` };
+  } catch (error) {
+    throw new functions.https.HttpsError("internal", error.message);
+  }
+});
+
 // Delete User by UID
 
 exports.deleteUserById = functions.https.onCall(async (data, context) => {
