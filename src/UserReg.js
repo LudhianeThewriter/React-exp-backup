@@ -82,14 +82,6 @@ export default function UserReg() {
       });
 
       if (isAdmin) {
-        const functions = getFunctions();
-        const setUserRole = httpsCallable(functions, "setUserRole");
-
-        await setUserRole({
-          uid: userCredential.user.uid,
-          role: "admin",
-        });
-
         await auth.currentUser.getIdToken(true);
       }
     } catch (error) {
