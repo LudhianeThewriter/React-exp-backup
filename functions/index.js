@@ -10,6 +10,23 @@ exports.autoGrantBaseAdmin = functions.auth.user().onCreate(async (user) => {
     console.log(`Admin Claim set for base email : ${user.email}`);
   }
 });
+
+// List of all users
+exports.listUsers = functions.https.onCall(async (data, context) => {
+  try {
+    const listUsersResult = await admin.auth().listUsers(1000);
+    return listUsersResult.users.map((user) => ({
+      uid: user.uid,
+      email: user.email,
+      username: user.username,
+      disabled: user.disabled,
+      metadata:user.metadata;
+    }));
+  } catch (error) {
+    throw new functions.https.HttpsError('internal',error.message)
+  }
+});
+
 // Delete User by UID
 
 exports.deleteUserById = functions.https.onCall(async (data, context) => {
