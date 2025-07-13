@@ -18,12 +18,11 @@ exports.listUsers = functions.https.onCall(async (data, context) => {
     return listUsersResult.users.map((user) => ({
       uid: user.uid,
       email: user.email,
-      username: user.username,
       disabled: user.disabled,
-      metadata:user.metadata;
+      metadata: user.metadata,
     }));
   } catch (error) {
-    throw new functions.https.HttpsError('internal',error.message)
+    throw new functions.https.HttpsError("internal", error.message);
   }
 });
 
