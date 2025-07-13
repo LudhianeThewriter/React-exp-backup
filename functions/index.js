@@ -29,6 +29,9 @@ exports.listUsers = functions
         email: user.email,
         disabled: user.disabled,
         metadata: user.metadata,
+        gender: user.gender,
+        username: user.username,
+        plan: user.plan,
       }));
     } catch (error) {
       throw new functions.https.HttpsError("internal", error.message);

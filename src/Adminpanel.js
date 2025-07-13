@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "./UserSideBar";
 import { auth } from "./firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default function AdminDashboardPage() {
+  const [users, setUsers] = useState([]);
+  const functions = getFunctions();
+
+  //Check whether admin access or Suspicious access
   useEffect(() => {
     const checkAdmin = async () => {
       const user = auth.currentUser;
@@ -17,6 +22,22 @@ export default function AdminDashboardPage() {
       }
     };
   });
+
+  // Fetch List of users using website
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const list = httpsCallable(functions, "listUsers");
+        const res = await list();
+        setUsers(res.data);
+      } catch (error) {
+        alert("Not authorise : " + error.message);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+  console.log("List of Users ", users);
 
   const adminSections = [
     {
