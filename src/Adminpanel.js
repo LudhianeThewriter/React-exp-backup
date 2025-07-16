@@ -11,9 +11,11 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
 
   // Admin access check
+  /* lOGIC onE
   useEffect(() => {
     const checkAdmin = async () => {
       const user = auth.currentUser;
+
       if (user) {
         try {
           const token = await user.getIdTokenResult(true);
@@ -29,16 +31,6 @@ export default function AdminDashboardPage() {
           await auth.signOut();
           navigate("/");
         }
-
-        /*
-        console.log("User loading ", user);
-        const token = await user.getIdTokenResult(true);
-        console.log("Token ", token);
-        if (!token.claims.admin) {
-          alert("Access denied");
-          await auth.signOut();
-          navigate("/");
-        }*/
       } else {
         auth.signOut();
         navigate("/");
@@ -47,6 +39,50 @@ export default function AdminDashboardPage() {
     checkAdmin();
   }, [navigate]);
 
+*/
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        await auth.signOut();
+        navigate("/");
+        return;
+      }
+
+      try {
+        let tokenResult = await user.getIdTokenResult(true);
+        console.log("Token Result 1 ", tokenResult);
+        const isAdmin = tokenResult.claims?.admin == true;
+
+        if (!isAdmin && user.email == "sharmakaran7910929@gmail.com") {
+          console.log("Setting admin claims manually...");
+          const setAdmin = httpsCallable(functions, "setAdminBaseManually");
+          await setAdmin();
+
+          await new Promise((r) => setTimeout(r, 1500));
+          tokenResult = await user.getIdTokenResult(true);
+
+          if (!tokenResult.claims?.admin) {
+            alert(
+              "Admin access still not granted . PLease try logout and login..."
+            );
+            await auth.signOut();
+            navigate("/");
+          }
+        } else if (!isAdmin) {
+          alert("Access Denied :You are not admin");
+          await auth.signOut();
+          navigate("/");
+        }
+      } catch (error) {
+        console.log("Token Error : ", error.message);
+        alert("Error checking access...");
+        await auth.signOut();
+        navigate("/");
+      }
+    };
+  });
   // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {

@@ -6,6 +6,16 @@ const runtime = {
   timeoutSeconds: 60,
   memory: "256MB",
 };
+
+// If user already exists
+exports.setAdminBaseManually = functions
+  .runWith(runtime)
+  .https.onCall(async (data, context) => {
+    const BASE_Mail = "sharmakaran7910929@gmail.com";
+    const snapshot = await admin.auth().getUserByEmail(BASE_Mail);
+    await admin.auth().setCustomUserClaims(snapshot.uid, { admin: true });
+    return { message: `Admin claim manually for ${BASE_Mail}` };
+  });
 // Setting role of User
 exports.autoGrantBaseAdmin = functions
   .runWith(runtime)
