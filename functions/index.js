@@ -13,8 +13,22 @@ exports.autoGrantBaseAdmin = functions
   .onCreate(async (user) => {
     const BASE_Mail = "sharmakaran7910929@gmail.com";
     if (user.email && user.email.toLowerCase() == BASE_Mail.toLowerCase()) {
-      await admin.auth().setCustomUserClaims(user.uid, { admin: true });
-      console.log(`Admin Claim set for base email : ${user.email}`);
+      try {
+        const currentUser = await admin.auth().getUser(user.uid);
+        const claims = currentUser.customClaims || {};
+
+        if (!claims.admin) {
+          await admin.auth().setCustomUserClaims(user.uid, { admin: true });
+          console.log(`✅ Admin claim set for base email: ${user.email}`);
+        } else {
+          console.log(`ℹ️ Admin claim already exists for: ${user.email}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error setting admin claim for ${user.email}:`, error);
+      }
+
+      //
+      // console.log(`Admin Claim set for base email : ${user.email}`);
     }
   });
 
@@ -38,8 +52,8 @@ exports.listUsers = functions
             meta: user.metadata,
             disbaled: user.disabled,
             gender: profileData.gender || null,
-            username:profileData.username || null,
-            plan:profileData.plan || null
+            username: profileData.username || null,
+            plan: profileData.plan || null,
           };
         })
       );

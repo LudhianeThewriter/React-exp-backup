@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
       const user = auth.currentUser;
       if (user) {
         try {
-          const token = user.getIdTokenResult(true);
+          const token = await user.getIdTokenResult(true);
           console.log("Token Result ", token);
           if (!token.claims.admin) {
             alert("access-denied");
