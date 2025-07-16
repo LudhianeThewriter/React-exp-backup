@@ -24,15 +24,27 @@ exports.listUsers = functions
   .https.onCall(async (data, context) => {
     try {
       const listUsersResult = await admin.auth().listUsers(1000);
-      return listUsersResult.users.map((user) => ({
-        uid: user.uid,
-        email: user.email,
-        disabled: user.disabled,
-        metadata: user.metadata,
-        gender: user.gender,
-        username: user.username,
-        plan: user.plan,
-      }));
+      const userProfiles = await Promise.all(
+        listUsersResult.users.map(async (user) => {
+          const profileDoc = await admin
+            .firestore()
+            .collection("users")
+            .doc(user.uid)
+            .get();
+          const profileData = profileDoc.exists ? profileDoc.data() : {};
+          return {
+            uid: user.uid,
+            email: user.email,
+            meta: user.metadata,
+            disbaled: user.disabled,
+            gender: profileData.gender || null,
+            username:profileData.username || null,
+            plan:profileData.plan || null
+          };
+        })
+      );
+
+      return userProfiles;
     } catch (error) {
       throw new functions.https.HttpsError("internal", error.message);
     }

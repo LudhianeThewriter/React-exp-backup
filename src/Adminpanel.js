@@ -5,6 +5,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default function AdminDashboardPage() {
   const [users, setUsers] = useState([]);
+  const [userTotal, setUserTotal] = useState({ count: 0, blocked: 0 });
   const functions = getFunctions();
 
   //Check whether admin access or Suspicious access
@@ -30,6 +31,11 @@ export default function AdminDashboardPage() {
         const list = httpsCallable(functions, "listUsers");
         const res = await list();
         setUsers(res.data);
+        const uCount = res.data.length;
+        const uBlocked = res.data.filter(
+          (user) => user.disabled == true
+        ).length;
+        setUserTotal({ count: uCount, blocked: uBlocked });
       } catch (error) {
         alert("Not authorise : " + error.message);
       }
@@ -43,8 +49,12 @@ export default function AdminDashboardPage() {
     {
       title: "👥 Manage Users",
       stats: [
-        { label: "Total Users", value: "1,245", color: "#28a745" },
-        { label: "Blocked Accounts", value: "15", color: "#dc3545" },
+        { label: "Total Users", value: userTotal.count, color: "#28a745" },
+        {
+          label: "Blocked Accounts",
+          value: userTotal.blocked,
+          color: "#dc3545",
+        },
       ],
       extra: (
         <div className="table-responsive mt-4">
@@ -55,40 +65,30 @@ export default function AdminDashboardPage() {
                 <th>Email</th>
                 <th>Gender</th>
                 <th>Date Joined</th>
+                <th>Last Login</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>John Doe</td>
-                <td>john@example.com</td>
-                <td>Male</td>
-                <td>2024-12-01</td>
-                <td>
-                  <button className="btn btn-warning btn-sm me-2">Block</button>
-                  <button className="btn btn-danger btn-sm">Delete</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Jane Smith</td>
-                <td>jane@example.com</td>
-                <td>Female</td>
-                <td>2025-01-15</td>
-                <td>
-                  <button className="btn btn-warning btn-sm me-2">Block</button>
-                  <button className="btn btn-danger btn-sm">Delete</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Alex Johnson</td>
-                <td>alex@example.com</td>
-                <td>Other</td>
-                <td>2025-03-03</td>
-                <td>
-                  <button className="btn btn-warning btn-sm me-2">Block</button>
-                  <button className="btn btn-danger btn-sm">Delete</button>
-                </td>
-              </tr>
+              {users
+                ? users.map((user) => (
+                    <tr key={user.uid}>
+                      <td>{user.username}</td>
+                      <td>{user.email}</td>
+                      <td>{user.gender}</td>
+                      <td>{user.meta.creationTime}</td>
+                      <td>{user.meta.lastSignInTime}</td>
+                      <td>
+                        <button className="btn btn-warning btn-sm me-2">
+                          Block
+                        </button>
+                        <button className="btn btn-danger btn-sm">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                : "No user record !"}
             </tbody>
           </table>
         </div>
