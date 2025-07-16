@@ -2,29 +2,52 @@ import React, { useState, useEffect } from "react";
 import SideBar from "./UserSideBar";
 import { auth } from "./firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboardPage() {
   const [users, setUsers] = useState([]);
   const [userTotal, setUserTotal] = useState({ count: 0, blocked: 0 });
   const functions = getFunctions();
+  const navigate = useNavigate();
 
-  //Check whether admin access or Suspicious access
+  // Admin access check
   useEffect(() => {
     const checkAdmin = async () => {
       const user = auth.currentUser;
       if (user) {
-        const token = await user.getIdTokenResult();
-        if (!token.claims.admin) {
-          alert("access-denined");
-          navigate("/");
-        } else {
+        try {
+          const token = user.getIdTokenResult(true);
+          console.log("Token Result ", token);
+          if (!token.claims.admin) {
+            alert("access-denied");
+            await auth.signOut();
+            navigate("/");
+          }
+        } catch (error) {
+          console.log("Token error ", error.message);
+          alert("error checking access");
+          await auth.signOut();
           navigate("/");
         }
+
+        /*
+        console.log("User loading ", user);
+        const token = await user.getIdTokenResult(true);
+        console.log("Token ", token);
+        if (!token.claims.admin) {
+          alert("Access denied");
+          await auth.signOut();
+          navigate("/");
+        }*/
+      } else {
+        auth.signOut();
+        navigate("/");
       }
     };
-  });
+    checkAdmin();
+  }, [navigate]);
 
-  // Fetch List of users using website
+  // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -33,17 +56,15 @@ export default function AdminDashboardPage() {
         setUsers(res.data);
         const uCount = res.data.length;
         const uBlocked = res.data.filter(
-          (user) => user.disabled == true
+          (user) => user.disabled === true
         ).length;
         setUserTotal({ count: uCount, blocked: uBlocked });
       } catch (error) {
-        alert("Not authorise : " + error.message);
+        alert("Not authorized: " + error.message);
       }
     };
-
     fetchUsers();
-  }, []);
-  console.log("List of Users ", users);
+  }, [functions]);
 
   const adminSections = [
     {
@@ -58,7 +79,7 @@ export default function AdminDashboardPage() {
       ],
       extra: (
         <div className="table-responsive mt-4">
-          <table className="table table-dark table-striped table-hover">
+          <table className="table table-striped table-bordered table-dark table-hover">
             <thead>
               <tr>
                 <th>Username</th>
@@ -70,25 +91,29 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {users
-                ? users.map((user) => (
-                    <tr key={user.uid}>
-                      <td>{user.username}</td>
-                      <td>{user.email}</td>
-                      <td>{user.gender}</td>
-                      <td>{user.meta.creationTime}</td>
-                      <td>{user.meta.lastSignInTime}</td>
-                      <td>
-                        <button className="btn btn-warning btn-sm me-2">
-                          Block
-                        </button>
-                        <button className="btn btn-danger btn-sm">
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                : "No user record !"}
+              {users && users.length > 0 ? (
+                users.map((user) => (
+                  <tr key={user.uid}>
+                    <td>{user.username}</td>
+                    <td>{user.email}</td>
+                    <td>{user.gender}</td>
+                    <td>{user.meta.creationTime}</td>
+                    <td>{user.meta.lastSignInTime}</td>
+                    <td>
+                      <button className="btn btn-warning btn-sm me-2">
+                        Block
+                      </button>
+                      <button className="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    No user records found!
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -129,7 +154,7 @@ export default function AdminDashboardPage() {
       },
       extra: (
         <div className="table-responsive mt-4">
-          <table className="table table-dark table-striped table-hover">
+          <table className="table table-striped table-dark table-bordered table-hover">
             <thead>
               <tr>
                 <th>Username</th>
@@ -173,12 +198,13 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container-fluid bg-dark text-white min-vh-100">
-      <div className="row">
-        <aside className="col-md-3 col-lg-2 bg-secondary p-0 vh-100 sticky-top">
+      <div className="row flex-nowrap">
+        {/* Sidebar (collapsible on smaller screens) */}
+        <aside className="col-12 col-md-3 col-lg-2 bg-secondary p-0 sticky-top">
           <SideBar />
         </aside>
 
-        <main className="col-md-9 col-lg-10 py-4">
+        <main className="col py-4 px-3">
           <h1 className="h3 mb-4">🛠️ Admin Dashboard</h1>
 
           <div className="accordion" id="adminAccordion">
@@ -207,7 +233,7 @@ export default function AdminDashboardPage() {
                   <div className="accordion-body">
                     <div className="row g-3">
                       {section.stats.map((stat, i) => (
-                        <div className="col-md-6" key={i}>
+                        <div className="col-12 col-md-6" key={i}>
                           <div className="card bg-secondary text-white">
                             <div className="card-body">
                               <h6
