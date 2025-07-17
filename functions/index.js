@@ -11,7 +11,22 @@ const runtime = {
 exports.setAdminBaseManually = functions
   .runWith(runtime)
   .https.onCall(async (data, context) => {
+    // Ensure user is authenticated
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "Login Required");
+    }
+
+    // Extra protection :Allow only base BASE_Mail
+    const callerEmail = context.auth.token.email;
     const BASE_Mail = "sharmakaran7910929@gmail.com";
+
+    if (callerEmail.toLowerCase() != BASE_Mail.toLowerCase()) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "You are not allowed"
+      );
+    }
+
     const snapshot = await admin.auth().getUserByEmail(BASE_Mail);
     await admin.auth().setCustomUserClaims(snapshot.uid, { admin: true });
     return { message: `Admin claim manually for ${BASE_Mail}` };
