@@ -73,6 +73,8 @@ exports.autoGrantBaseAdmin = functions
 exports.listUsers = functions
   .runWith(runtime)
   .https.onCall(async (data, context) => {
+    console.log("Decoded token:", context.auth?.token);
+
     // Ensure admin access only
 
     if (!context.auth?.token.admin) {

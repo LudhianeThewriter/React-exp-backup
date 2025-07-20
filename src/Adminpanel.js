@@ -52,17 +52,21 @@ export default function AdminDashboardPage() {
 
       try {
         let tokenResult = await user.getIdTokenResult(true);
+
         console.log("Token Result 1 ", tokenResult);
         const isAdmin = tokenResult.claims?.admin == true;
 
         if (!isAdmin && user.email == "sharmakaran7910929@gmail.com") {
           console.log("Setting admin claims manually...");
-          const setAdmin = httpsCallable(functions, "setAdminBaseManually");
-          await setAdmin();
+          try {
+            const setAdmin = httpsCallable(functions, "setAdminBaseManually");
+            await setAdmin();
 
-          await new Promise((r) => setTimeout(r, 1500));
-          tokenResult = await user.getIdTokenResult(true);
-
+            await new Promise((r) => setTimeout(r, 1500));
+            tokenResult = await user.getIdTokenResult(true);
+          } catch (error) {
+            alert("ReClaim Admin ", error.message);
+          }
           if (!tokenResult.claims?.admin) {
             alert(
               "Admin access still not granted . PLease try logout and login..."
@@ -82,7 +86,8 @@ export default function AdminDashboardPage() {
         navigate("/");
       }
     };
-  });
+    checkAdmin();
+  }, []);
   // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
