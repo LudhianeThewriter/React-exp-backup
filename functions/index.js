@@ -27,6 +27,18 @@ exports.setAdminBaseManually = functions
       );
     }
 
+    //Optional Protection: Allow one time usage
+    const alreadUsedDoc = await admin
+      .firestore()
+      .doc("system/adminSetOnce")
+      .get();
+
+    if (alreadUsedDoc.exists) {
+      throw new functions.https.HttpsError(
+        "already-exists",
+        "Admin already set"
+      );
+    }
     const snapshot = await admin.auth().getUserByEmail(BASE_Mail);
     await admin.auth().setCustomUserClaims(snapshot.uid, { admin: true });
     return { message: `Admin claim manually for ${BASE_Mail}` };
@@ -61,6 +73,12 @@ exports.autoGrantBaseAdmin = functions
 exports.listUsers = functions
   .runWith(runtime)
   .https.onCall(async (data, context) => {
+    // Ensure admin access only
+
+    if (!context.auth?.token.admin) {
+      throw new functions.https.HttpsError("permission-denied", "Admin only");
+    }
+
     try {
       const listUsersResult = await admin.auth().listUsers(1000);
       const userProfiles = await Promise.all(
