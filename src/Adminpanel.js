@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import SideBar from "./UserSideBar";
 import { auth } from "./firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -9,6 +9,18 @@ export default function AdminDashboardPage() {
   const [userTotal, setUserTotal] = useState({ count: 0, blocked: 0 });
   const functions = getFunctions();
   const navigate = useNavigate();
+  const fetchUsers = useCallback(async () => {
+    try {
+      const list = httpsCallable(functions, "listUsers");
+      const res = await list();
+      setUsers(res.data);
+      const uCount = res.data.length;
+      const uBlocked = res.data.filter((user) => user.disabled === true).length;
+      setUserTotal({ count: uCount, blocked: uBlocked });
+    } catch (error) {
+      alert("Backend error.. " + error.message);
+    }
+  }, [functions]);
 
   // Admin access check
 
@@ -61,22 +73,34 @@ export default function AdminDashboardPage() {
   }, []);
   // Fetch users
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const list = httpsCallable(functions, "listUsers");
-        const res = await list();
-        setUsers(res.data);
-        const uCount = res.data.length;
-        const uBlocked = res.data.filter(
-          (user) => user.disabled === true
-        ).length;
-        setUserTotal({ count: uCount, blocked: uBlocked });
-      } catch (error) {
-        alert("Not authorized: " + error.message);
-      }
-    };
     fetchUsers();
-  }, [functions]);
+  }, [fetchUsers]);
+
+  const handleDelete = async (uid) => {
+    if (!window.confirm("Are you sure you want to delete this user ? ")) return;
+
+    try {
+      const deleteUser = httpsCallable(functions, "deleteUserByIdV1");
+      const { data } = await deleteUser({ uid });
+      alert(data.message);
+      await fetchUsers();
+    } catch (error) {
+      alert("Failed to delete user " + error.message);
+    }
+  };
+
+  const handleBlock = async (uid) => {
+    if (!window.confirm("Block this user ?")) return;
+
+    try {
+      const blockUser = httpsCallable(functions, "blockUserByIdV1");
+      const { data } = await blockUser(uid);
+      alert(data.message);
+      await fetchUsers();
+    } catch (error) {
+      alert("Failed to block the user " + error.message);
+    }
+  };
 
   const adminSections = [
     {
@@ -112,10 +136,18 @@ export default function AdminDashboardPage() {
                     <td>{user.meta.creationTime}</td>
                     <td>{user.meta.lastSignInTime}</td>
                     <td>
-                      <button className="btn btn-warning btn-sm me-2">
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={handleBlock}
+                      >
                         Block
                       </button>
-                      <button className="btn btn-danger btn-sm">Delete</button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={handleDelete}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
