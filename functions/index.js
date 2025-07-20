@@ -43,6 +43,7 @@ exports.setAdminBaseManually = functions
     await admin.auth().setCustomUserClaims(snapshot.uid, { admin: true });
     return { message: `Admin claim manually for ${BASE_Mail}` };
   });
+
 // Setting role of User
 exports.autoGrantBaseAdmin = functions
   .runWith(runtime)

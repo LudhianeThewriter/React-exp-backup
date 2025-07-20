@@ -11,35 +11,6 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
 
   // Admin access check
-  /* lOGIC onE
-  useEffect(() => {
-    const checkAdmin = async () => {
-      const user = auth.currentUser;
-
-      if (user) {
-        try {
-          const token = await user.getIdTokenResult(true);
-          console.log("Token Result ", token);
-          if (!token.claims.admin) {
-            alert("access-denied");
-            await auth.signOut();
-            navigate("/");
-          }
-        } catch (error) {
-          console.log("Token error ", error.message);
-          alert("error checking access");
-          await auth.signOut();
-          navigate("/");
-        }
-      } else {
-        auth.signOut();
-        navigate("/");
-      }
-    };
-    checkAdmin();
-  }, [navigate]);
-
-*/
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -238,15 +209,17 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="container-fluid bg-dark text-white min-vh-100">
-      <div className="row flex-nowrap">
+    <div
+      className="container-fluid px-0 "
+      style={{ minHeight: "100vh", overflow: "hidden" }}
+    >
+      <div className="row g-0" style={{ minHeight: "100vh" }}>
         {/* Sidebar (collapsible on smaller screens) */}
-        <aside className="col-12 col-md-3 col-lg-2 bg-secondary p-0 sticky-top">
+        <div className="col-md-3">
           <SideBar />
-        </aside>
-
-        <main className="col py-4 px-3">
-          <h1 className="h3 mb-4">🛠️ Admin Dashboard</h1>
+        </div>
+        <main className="col-md-9 p-4 bg-dark" style={{ overflowY: "auto" }}>
+          <h1 className="h3 mb-4 text-white">🛠️ Admin Dashboard</h1>
 
           <div className="accordion" id="adminAccordion">
             {adminSections.map((section, index) => (
