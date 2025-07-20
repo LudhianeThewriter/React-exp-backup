@@ -138,13 +138,13 @@ export default function AdminDashboardPage() {
                     <td>
                       <button
                         className="btn btn-warning btn-sm me-2"
-                        onClick={handleBlock}
+                        onClick={() => handleBlock(user.uid)}
                       >
                         Block
                       </button>
                       <button
                         className="btn btn-danger btn-sm"
-                        onClick={handleDelete}
+                        onClick={() => handleDelete(user.uid)}
                       >
                         Delete
                       </button>
