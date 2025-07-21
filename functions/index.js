@@ -182,3 +182,20 @@ exports.UnblockUserByIdV1 = functions
       throw new functions.https.HttpsError("internal", error.message);
     }
   });
+
+// Check suspicious activity during Login
+
+exports.logSuspiciousActivity = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth?.token.admin) {
+      throw new functions.https.HttpsError("permission-denied", "Admin only");
+    }
+
+    return await admin.firestore().collection("securityLogs").add({
+      type: data.type,
+      detail: data,
+      uid: context.auth?.uid,
+      time: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+);

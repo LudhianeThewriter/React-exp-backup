@@ -37,6 +37,7 @@ export default function UserReg() {
   const [autolocation, setAutoLocation] = useState("");
   const [emailVerified, setEmailVerified] = useState(true);
   const [unverifiedUser, setUnverifiedUser] = useState(null);
+  const functions = getFunctions();
   const baseMail = "sharmakaran7910929@gmail.com";
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -135,6 +136,8 @@ export default function UserReg() {
       }
     } catch (error) {
       setStatus("Wrong Email / Password");
+      const logEvent = httpsCallable(functions, "logSuspiciousActivity");
+      logEvent({ type: "Login Failure", email, error: error.message });
     } finally {
       setLoading(false);
     }
