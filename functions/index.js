@@ -96,7 +96,7 @@ exports.listUsers = functions
             uid: user.uid,
             email: user.email,
             meta: user.metadata,
-            disbaled: user.disabled,
+            disabled: user.disabled,
             gender: profileData.gender || null,
             username: profileData.username || null,
             plan: profileData.plan || null,
@@ -144,6 +144,23 @@ exports.blockUserByIdV1 = functions
     try {
       await admin.auth().updateUser(uid, { disabled: true });
       return { message: ` User ${uid} has been blocked` };
+    } catch (error) {
+      throw new functions.https.HttpsError("internal", error.message);
+    }
+  });
+
+exports.UnblockUserByIdV1 = functions
+  .runWith(runtime)
+  .https.onCall(async (data, context) => {
+    if (!context.auth?.token.admin) {
+      throw new functions.https.HttpsError("permission-denied", "Admin only");
+    }
+
+    const uid = data;
+
+    try {
+      await admin.auth().updateUser(uid, { disabled: false });
+      return { message: ` User ${uid} has been unblocked` };
     } catch (error) {
       throw new functions.https.HttpsError("internal", error.message);
     }

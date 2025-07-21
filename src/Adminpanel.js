@@ -14,6 +14,7 @@ export default function AdminDashboardPage() {
       const list = httpsCallable(functions, "listUsers");
       const res = await list();
       setUsers(res.data);
+      console.log("List of users ", res.data);
       const uCount = res.data.length;
       const uBlocked = res.data.filter((user) => user.disabled === true).length;
       setUserTotal({ count: uCount, blocked: uBlocked });
@@ -103,6 +104,20 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleUnblock = async (uid) => {
+    console.log("Unblocking user uid : ", uid);
+    if (!window.confirm("Unblock this user ?")) return;
+
+    try {
+      const UnblockUser = httpsCallable(functions, "UnblockUserByIdV1");
+      const { data } = await UnblockUser(uid);
+      alert(data.message);
+      await fetchUsers();
+    } catch (error) {
+      alert("Failed to unblock the user " + error.message);
+    }
+  };
+
   const adminSections = [
     {
       title: "👥 Manage Users",
@@ -137,18 +152,28 @@ export default function AdminDashboardPage() {
                     <td>{user.meta.creationTime}</td>
                     <td>{user.meta.lastSignInTime}</td>
                     <td>
-                      <button
-                        className="btn btn-warning btn-sm me-2"
-                        onClick={() => handleBlock(user.uid)}
-                      >
-                        Block
-                      </button>
+                      {!user.disabled && (
+                        <button
+                          className="btn btn-warning btn-sm me-2"
+                          onClick={() => handleBlock(user.uid)}
+                        >
+                          Block
+                        </button>
+                      )}
                       <button
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(user.uid)}
                       >
                         Delete
                       </button>
+                      {user.disabled && (
+                        <button
+                          className="btn btn-warning btn-sm me-2"
+                          onClick={() => handleUnblock(user.uid)}
+                        >
+                          Unblock
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
