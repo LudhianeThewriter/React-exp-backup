@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
+const db = admin.firestore();
 const runtime = {
   timeoutSeconds: 60,
   memory: "256MB",
@@ -143,6 +144,14 @@ exports.blockUserByIdV1 = functions
 
     try {
       await admin.auth().updateUser(uid, { disabled: true });
+      // audit log
+      await db.collection("adminLogs").add({
+        performBy: context.auth.uid,
+        action: "block_user",
+        targetUid: uid,
+        details: "User blocked",
+        timeStamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
       return { message: ` User ${uid} has been blocked` };
     } catch (error) {
       throw new functions.https.HttpsError("internal", error.message);
@@ -160,6 +169,14 @@ exports.UnblockUserByIdV1 = functions
 
     try {
       await admin.auth().updateUser(uid, { disabled: false });
+      // audit log
+      await db.collection("adminLogs").add({
+        performBy: context.auth.uid,
+        action: "unblock_user",
+        targetUid: uid,
+        details: "User blocked",
+        timeStamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
       return { message: ` User ${uid} has been unblocked` };
     } catch (error) {
       throw new functions.https.HttpsError("internal", error.message);
