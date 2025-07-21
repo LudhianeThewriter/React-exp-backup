@@ -90,6 +90,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleBlock = async (uid) => {
+    console.log("Blocking user uid : ", uid);
     if (!window.confirm("Block this user ?")) return;
 
     try {

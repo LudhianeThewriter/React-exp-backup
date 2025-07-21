@@ -139,7 +139,7 @@ exports.blockUserByIdV1 = functions
       throw new functions.https.HttpsError("permission-denied", "Admin only");
     }
 
-    const uid = data.uid;
+    const uid = data;
 
     try {
       await admin.auth().updateUser(uid, { disabled: true });
