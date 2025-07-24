@@ -210,9 +210,12 @@ const Dashboard = () => {
                           ₹{expense.amount} on {expense.date}
                         </small>
                         {expense.remarks && (
-                          <div className="text-muted">
-                            <small>{expense.remarks}</small>
-                          </div>
+                          <div
+                            className="text-muted"
+                            dangerouslySetInnerHTML={{
+                              __html: expense.remarks,
+                            }}
+                          ></div>
                         )}
                       </div>
                       <button
