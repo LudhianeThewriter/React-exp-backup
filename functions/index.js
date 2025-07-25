@@ -1,5 +1,20 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3000;
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Server is working POng");
+});
+
+app.listen(port, () => {
+  console.log(`Listening .. ${port}`);
+});
+
+exports.api = functions.https.onRequest(app);
+
 admin.initializeApp();
 
 const db = admin.firestore();
