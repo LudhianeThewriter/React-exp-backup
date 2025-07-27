@@ -131,7 +131,15 @@ export default function UserReg() {
         await signOut(auth);
       } else {
         setUser(userCredential.user);
-
+        const token = userCredential.user.getIdToken(true);
+        await fetch("/secure-endpoint", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ event: "login", email: user.email }),
+        });
         navigate("/dashboard");
       }
     } catch (error) {

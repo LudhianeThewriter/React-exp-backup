@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
+const { decorate } = require("react-toastify/addons/use-notification-center");
 const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
@@ -14,6 +15,24 @@ app.listen(port, () => {
 });
 
 exports.api = functions.https.onRequest(app);
+
+app.post("/secure-endpoint", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(403).send("UnAuthorised");
+  }
+
+  const idToken = authHeader.split("Bearer ")[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    res.send("Secure content access by uid : " + uid);
+  } catch (error) {
+    res.status(401).send("Token verification failed ");
+  }
+});
 
 admin.initializeApp();
 
