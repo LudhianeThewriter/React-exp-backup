@@ -15,15 +15,17 @@ app.use(express.json());
 
 admin.initializeApp({ credential: admin.credential.applicationDefault() });
 
-app.post("/api/secure-endpoint", async (req, res) => {
+app.post("/secure-endpoint", async (req, res) => {
+  console.log("🔐 Hit /secure-endpoint");
   const authHeader = req.headers.authorization || "";
   const token = authHeader.replace("Bearer ", "");
-
+  console.log("🪪 Authorization Header:", authHeader);
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.log("❌ Missing or malformed Bearer token");
     return res.status(403).send("UnAuthorised");
   }
 
-  const idToken = authHeader.split("Bearer ")[1];
+  console.log("📦 Extracted Token:", token ? "✅ Present" : "❌ Missing");
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
