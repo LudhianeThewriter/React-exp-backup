@@ -131,21 +131,33 @@ export default function UserReg() {
         await signOut(auth);
       } else {
         setUser(userCredential.user);
-        const token = userCredential.user.getIdToken(true);
-        await fetch("/secure-endpoint", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ event: "login", email: user.email }),
-        });
+        const token = await userCredential.user.getIdToken(true);
+        console.log("Try to login token : ", token);
+        // https://us-central1-expense-a4a50.cloudfunctions.net/api
+        await fetch(
+          "https://us-central1-expense-a4a50.cloudfunctions.net/api/secure-endpoint",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              event: "login",
+              email: userCredential.user.email,
+            }),
+          }
+        );
         navigate("/dashboard");
       }
     } catch (error) {
       setStatus("Wrong Email / Password");
       const logEvent = httpsCallable(functions, "logSuspiciousActivity");
-      logEvent({ type: "Login Failure", email, error: error.message });
+      logEvent({
+        type: "Login Failure",
+        email: userEmail,
+        error: error.message,
+      });
     } finally {
       setLoading(false);
     }

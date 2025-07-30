@@ -1,23 +1,24 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
+// server config
+
 const express = require("express");
-const { decorate } = require("react-toastify/addons/use-notification-center");
+const cors = require("cors");
+
 const app = express();
+app.use(cors());
+app.use(express.json());
+
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Server is working POng");
-});
+admin.initializeApp({ credential: admin.credential.applicationDefault() });
 
-app.listen(port, () => {
-  console.log(`Listening .. ${port}`);
-});
+app.post("/api/secure-endpoint", async (req, res) => {
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.replace("Bearer ", "");
 
-exports.api = functions.https.onRequest(app);
-
-app.post("/secure-endpoint", async (req, res) => {
-  const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(403).send("UnAuthorised");
   }
@@ -25,16 +26,22 @@ app.post("/secure-endpoint", async (req, res) => {
   const idToken = authHeader.split("Bearer ")[1];
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const uid = decodedToken.uid;
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log("user id verified ", decodedToken.uid);
+    const userUid = decodedToken.uid;
 
-    res.send("Secure content access by uid : " + uid);
+    res.send({ message: "Logged in ", uid: userUid });
   } catch (error) {
-    res.status(401).send("Token verification failed ");
+    console.log("Error while verifying ", error.message);
+    res.status(401).json({ error: "UnAuthorised-Invalid Token" });
   }
 });
 
-admin.initializeApp();
+exports.api = functions.https.onRequest(app);
+app.listen(5000, () => {
+  console.log("Api server running on Port 5000...");
+});
+// firebase db config
 
 const db = admin.firestore();
 const runtime = {
@@ -141,7 +148,7 @@ exports.listUsers = functions
 
       return userProfiles;
     } catch (error) {
-      throw new functions.https.HttpsError("internal", error.message);
+      throw new functions.https.HttpsError("internal 1", error.message);
     }
   });
 
@@ -161,7 +168,7 @@ exports.deleteUserByIdV1 = functions
       await admin.auth().deleteUser(uid);
       return { message: `User ${uid} deleted successfully` };
     } catch (error) {
-      throw new functions.https.HttpsError("internal", error.message);
+      throw new functions.https.HttpsError("internal 2", error.message);
     }
   });
 
@@ -188,7 +195,7 @@ exports.blockUserByIdV1 = functions
       });
       return { message: ` User ${uid} has been blocked` };
     } catch (error) {
-      throw new functions.https.HttpsError("internal", error.message);
+      throw new functions.https.HttpsError("internal 3", error.message);
     }
   });
 
@@ -213,7 +220,7 @@ exports.UnblockUserByIdV1 = functions
       });
       return { message: ` User ${uid} has been unblocked` };
     } catch (error) {
-      throw new functions.https.HttpsError("internal", error.message);
+      throw new functions.https.HttpsError("internal 4", error.message);
     }
   });
 
@@ -221,10 +228,6 @@ exports.UnblockUserByIdV1 = functions
 
 exports.logSuspiciousActivity = functions.https.onCall(
   async (data, context) => {
-    if (!context.auth?.token.admin) {
-      throw new functions.https.HttpsError("permission-denied", "Admin only");
-    }
-
     return await admin.firestore().collection("securityLogs").add({
       type: data.type,
       detail: data,
