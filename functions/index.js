@@ -3,17 +3,29 @@ const admin = require("firebase-admin");
 
 // server config
 
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const xssClean = require("xss-clean");
 const express = require("express");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-const port = process.env.PORT || 3000;
 app.use(express.json());
-
 admin.initializeApp({ credential: admin.credential.applicationDefault() });
+
+app.use(helmet());
+
+app.use(cors());
+app.use(xssClean());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Too many requests ,Try next day",
+});
+
+app.use("/secure-endpoint", limiter);
 
 app.post("/secure-endpoint", async (req, res) => {
   console.log("🔐 Hit /secure-endpoint");
@@ -40,9 +52,12 @@ app.post("/secure-endpoint", async (req, res) => {
 });
 
 exports.api = functions.https.onRequest(app);
+/*
 app.listen(5000, () => {
   console.log("Api server running on Port 5000...");
 });
+
+*/
 // firebase db config
 
 const db = admin.firestore();
