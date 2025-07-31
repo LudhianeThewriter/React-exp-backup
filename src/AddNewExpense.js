@@ -175,6 +175,10 @@ export default function AddNew({ onAdd }) {
               Add Expense
             </button>
           </form>
+          <hr />
+          <button className="btn btn-primary p-3 text-bold">
+            Use Bulk Upload
+          </button>
         </div>
       </div>
     </div>
