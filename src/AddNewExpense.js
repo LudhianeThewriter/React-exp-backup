@@ -7,6 +7,7 @@ import { AuthContext } from "./AuthContext";
 import { addExpense } from "./FirebaseUtils";
 import { toast } from "react-toastify";
 import Sidebar from "./UserSideBar";
+import { BulkDataFromExcel } from "./BulkData";
 export default function AddNew({ onAdd }) {
   const { user, loading } = useContext(AuthContext);
 
@@ -176,9 +177,7 @@ export default function AddNew({ onAdd }) {
             </button>
           </form>
           <hr />
-          <button className="btn btn-primary p-3 text-bold">
-            Use Bulk Upload
-          </button>
+          <BulkDataFromExcel />
         </div>
       </div>
     </div>
