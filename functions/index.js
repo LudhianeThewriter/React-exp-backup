@@ -51,13 +51,6 @@ app.post("/secure-endpoint", async (req, res) => {
   }
 });
 
-exports.api = functions.https.onRequest(app);
-/*
-app.listen(5000, () => {
-  console.log("Api server running on Port 5000...");
-});
-
-*/
 // firebase db config
 
 const db = admin.firestore();
@@ -253,3 +246,109 @@ exports.logSuspiciousActivity = functions.https.onCall(
     });
   }
 );
+
+//--- CREATE DOWNLOADABLE EXCEL TEMPLATE FOR WITH SOME STANDARDS
+
+const Exceljs = require("exceljs");
+
+app.get("/downloadExcel", async (req, res) => {
+  const workbook = new Exceljs.Workbook();
+  const worksheet = workbook.addWorksheet("Expense_template");
+
+  //Add headers
+  worksheet.columns = [
+    { header: "Expense Category", key: "category", width: 30 },
+    { header: "Amount", key: "amount", width: 15 },
+    { header: "Date", key: "date", width: 20 },
+    { header: "Remarks", key: "remarks", width: 40 },
+  ];
+
+  // Lock Header Rows
+
+  worksheet.getRow(1).eachCell((cell) => {
+    (cell.protection = { locked: true }),
+      (cell.font = { bold: true }),
+      (cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFFFE0B2" },
+      });
+  });
+
+  // Add 20 Rows
+
+  for (let i = 0; i < 20; i++) {
+    worksheet.addRow({
+      category: "",
+      amount: "",
+      date: "",
+      remarks: "",
+    });
+  }
+
+  // Apply dropdown data validation
+
+  const categories = [
+    "Milk & Newspaper",
+    "Fruits & Vegetables",
+    "Rent",
+    "Food",
+    "Groceries",
+    "Loan , Repayments & Interest",
+    "Transport",
+    "Bills",
+    "Shopping",
+    "Health",
+    "Entertainment",
+    "Education",
+    "Taxes",
+    "Charity / Donations",
+    "Dining Out",
+    "Travel & Vacation",
+    "Events",
+    "Household Supplies",
+    "Maid / Domestic Help",
+    "Repairs & Maintenance",
+    "Kids' Expenses",
+    "Pet Expenses",
+    "Conveyance Expense",
+    "Renewal & Recharges",
+    "Others",
+  ];
+
+  for (let i = 2; i <= 21; i++) {
+    worksheet.getCell(`A${i}`).dataValidation = {
+      type: "list",
+      allowBlank: false,
+      formulae: [`'${categories.join(",")}'`],
+      showErrorMessage: true,
+      error: "Choose a valid Expense category from dropdown",
+    };
+  }
+
+  // Protect worksheet
+
+  await worksheet.protect("123", {
+    selectLockedCells: true,
+    selectUnlockedCells: true,
+    formatCells: false,
+    insertRows: false,
+    deleteRows: false,
+  });
+
+  res.setHeader(
+    "Content-type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=Expense_template.xlsx"
+  );
+
+  await workbook.xlsx.write(res);
+
+  res.end();
+});
+
+exports.api = functions.https.onRequest(app);
