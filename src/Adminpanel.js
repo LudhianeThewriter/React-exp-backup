@@ -9,6 +9,8 @@ export default function AdminDashboardPage() {
   const [userTotal, setUserTotal] = useState({ count: 0, blocked: 0 });
   const functions = getFunctions();
   const navigate = useNavigate();
+
+  
   const fetchUsers = useCallback(async () => {
     try {
       const list = httpsCallable(functions, "listUsers");

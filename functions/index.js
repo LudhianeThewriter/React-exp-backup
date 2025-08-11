@@ -288,39 +288,13 @@ app.get("/downloadExcel", async (req, res) => {
 
   // Apply dropdown data validation
 
-  const categories = [
-    "Milk & Newspaper",
-    "Fruits & Vegetables",
-    "Rent",
-    "Food",
-    "Groceries",
-    "Loan , Repayments & Interest",
-    "Transport",
-    "Bills",
-    "Shopping",
-    "Health",
-    "Entertainment",
-    "Education",
-    "Taxes",
-    "Charity / Donations",
-    "Dining Out",
-    "Travel & Vacation",
-    "Events",
-    "Household Supplies",
-    "Maid / Domestic Help",
-    "Repairs & Maintenance",
-    "Kids' Expenses",
-    "Pet Expenses",
-    "Conveyance Expense",
-    "Renewal & Recharges",
-    "Others",
-  ];
+  const categories = ["Milk & Newspaper", "Fruits & Vegetables", "Rent"];
 
   for (let i = 2; i <= 21; i++) {
     worksheet.getCell(`A${i}`).dataValidation = {
       type: "list",
-      allowBlank: false,
-      formulae: [`'${categories.join(",")}'`],
+      allowBlank: true,
+      formulae: [`"${categories.join(",")}"`],
       showErrorMessage: true,
       error: "Choose a valid Expense category from dropdown",
     };

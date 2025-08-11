@@ -7,8 +7,7 @@ import { AuthContext } from "./AuthContext";
 import { addExpense } from "./FirebaseUtils";
 import { toast } from "react-toastify";
 import Sidebar from "./UserSideBar";
-import { BulkDataFromExcel } from "./BulkData";
-import { DownloadTemplate } from "./DownloadTemplate";
+
 export default function AddNew({ onAdd }) {
   const { user, loading } = useContext(AuthContext);
 
@@ -178,8 +177,6 @@ export default function AddNew({ onAdd }) {
             </button>
           </form>
           <hr />
-          <BulkDataFromExcel />
-          <DownloadTemplate />
         </div>
       </div>
     </div>
