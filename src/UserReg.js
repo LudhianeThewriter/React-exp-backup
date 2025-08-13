@@ -25,13 +25,21 @@ import { motion } from "framer-motion";
 
 export default function UserReg() {
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
-  const [userName, setUserName] = useState("");
-  const [gender, setGender] = useState("");
+
+  const [userObject, setUserObject] = useState({
+    userEmail: "",
+    userPassword: "",
+    userName: "",
+    gender: "",
+  });
+
+  const [userLoginInfo, setUserLoginInfo] = useState({
+    userEmail: "",
+    userPassword: "",
+  });
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("");
-  const [regType, setRegType] = useState("Login");
+  const [regType, setRegType] = useState("SignUp");
   const [loading, setLoading] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: null, long: null });
   const [autolocation, setAutoLocation] = useState("");
@@ -39,10 +47,25 @@ export default function UserReg() {
   const [unverifiedUser, setUnverifiedUser] = useState(null);
   const functions = getFunctions();
   const baseMail = "sharmakaran7910929@gmail.com";
+
+  function handleUserSignupInfo(e) {
+    setUserObject((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+    console.log("User Sign up ", userObject);
+  }
+
+  function handleUserLoginInfo(e) {
+    setUserLoginInfo((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+    console.log("User login  ", userLoginInfo);
+  }
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -51,7 +74,12 @@ export default function UserReg() {
     setLoading(true);
     setStatus("");
 
-    if (!userEmail || !userPassword || !userName || gender === "") {
+    if (
+      !userObject.userEmail ||
+      !userObject.userPassword ||
+      !userObejct.userName ||
+      userObject.gender === ""
+    ) {
       setStatus("Please fill all required fields");
       setLoading(false);
       return;
@@ -59,8 +87,8 @@ export default function UserReg() {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        userEmail,
-        userPassword
+        userObject.userEmail,
+        userObject.userPassword
       );
 
       await sendEmailVerification(userCredential.user);
@@ -73,8 +101,8 @@ export default function UserReg() {
 
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email: userCredential.user.email,
-        username: userName,
-        gender: gender,
+        username: userObject.userName,
+        gender: userObject.gender,
         createdAt: new Date(),
         lat: coordinates.lat,
         long: coordinates.long,
@@ -120,10 +148,11 @@ export default function UserReg() {
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        userEmail,
-        userPassword
+        userLoginInfo.userEmail,
+        userLoginInfo.userPassword
       );
 
+      console.log("");
       if (!userCredential.user.emailVerified) {
         setUnverifiedUser(userCredential.user);
         setEmailVerified(false);
@@ -155,7 +184,7 @@ export default function UserReg() {
       const logEvent = httpsCallable(functions, "logSuspiciousActivity");
       logEvent({
         type: "Login Failure",
-        email: userEmail,
+        email: userLoginInfo.userEmail,
         error: error.message,
       });
     } finally {
@@ -186,7 +215,6 @@ export default function UserReg() {
 
   useEffect(() => {
     if ("geolocation" in navigator) {
-      console.log("Hello location");
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -199,8 +227,6 @@ export default function UserReg() {
     } else {
       alert("GeoLocation not supported");
     }
-
-    console.log("Coords : ", coordinates);
   }, []);
 
   return (
@@ -225,11 +251,6 @@ export default function UserReg() {
           <button
             onClick={() => {
               setRegType("Login");
-              setUserEmail("");
-              setUserPassword("");
-              setUserName("");
-              setGender("");
-              setStatus("");
             }}
             className={`btn btn-outline-primary ${
               regType === "Login" ? "active" : ""
@@ -241,11 +262,6 @@ export default function UserReg() {
           <button
             onClick={() => {
               setRegType("SignUp");
-              setUserEmail("");
-              setUserPassword("");
-              setUserName("");
-              setGender("");
-              setStatus("");
             }}
             className={`btn btn-outline-success ${
               regType === "SignUp" ? "active" : ""
@@ -275,8 +291,9 @@ export default function UserReg() {
                 type="email"
                 className="form-control"
                 placeholder="Enter your email"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
+                name="userEmail"
+                value={userObject.userEmail}
+                onChange={handleUserSignupInfo}
               />
             </div>
 
@@ -290,8 +307,9 @@ export default function UserReg() {
                 type="password"
                 className="form-control"
                 placeholder="Enter your password"
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
+                name="userPassword"
+                value={userObject.userPassword}
+                onChange={handleUserSignupInfo}
               />
             </div>
 
@@ -305,8 +323,9 @@ export default function UserReg() {
                 type="text"
                 className="form-control"
                 placeholder="Choose a username"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                name="userName"
+                value={userObject.userName}
+                onChange={handleUserSignupInfo}
               />
             </div>
 
@@ -318,8 +337,9 @@ export default function UserReg() {
               <select
                 required
                 className="form-select"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                name="gender"
+                value={userObject.gender}
+                onChange={handleUserSignupInfo}
               >
                 <option value="">-- Select Gender --</option>
                 <option value="female">Female</option>
@@ -383,8 +403,9 @@ export default function UserReg() {
                 type="email"
                 className="form-control"
                 placeholder="Enter your email"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
+                name="userEmail"
+                value={userLoginInfo.userEmail}
+                onChange={handleUserLoginInfo}
               />
             </div>
 
@@ -398,8 +419,9 @@ export default function UserReg() {
                 type="password"
                 className="form-control"
                 placeholder="Enter your password"
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
+                name="userPassword"
+                value={userLoginInfo.userPassword}
+                onChange={handleUserLoginInfo}
               />
             </div>
 
