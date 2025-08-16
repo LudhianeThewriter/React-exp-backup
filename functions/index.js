@@ -247,6 +247,22 @@ exports.logSuspiciousActivity = functions.https.onCall(
   }
 );
 
+exports.fetchBugReport = functions.https.onCall(async (data, context) => {
+  if (!context.auth.token.admin) {
+    throw new functions.https.HttpsError("permission-denied", "Admin only");
+  }
+
+  try {
+    const snapshot = await admin.firestore().collection("bugLogs").get();
+
+    const bugList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return { bugList };
+  } catch (error) {
+    throw new functions.https.HttpsError('internal','Failed to fetch bug list');
+  }
+});
+
 //--- CREATE DOWNLOADABLE EXCEL TEMPLATE FOR WITH SOME STANDARDS
 
 const Exceljs = require("exceljs");

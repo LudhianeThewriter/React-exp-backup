@@ -3,25 +3,36 @@ import SideBar from "./UserSideBar";
 import { auth } from "./firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useNavigate } from "react-router-dom";
-
+import { BugTable } from "./BugTable";
 export default function AdminDashboardPage() {
   const [users, setUsers] = useState([]);
   const [userTotal, setUserTotal] = useState({ count: 0, blocked: 0 });
+  const [bugList, setBugList] = useState([]);
   const functions = getFunctions();
   const navigate = useNavigate();
 
-  
   const fetchUsers = useCallback(async () => {
     try {
       const list = httpsCallable(functions, "listUsers");
       const res = await list();
       setUsers(res.data);
-      console.log("List of users ", res.data);
+
       const uCount = res.data.length;
       const uBlocked = res.data.filter((user) => user.disabled === true).length;
       setUserTotal({ count: uCount, blocked: uBlocked });
     } catch (error) {
       alert("Backend error.. " + error.message);
+    }
+  }, [functions]);
+
+  const fetchBugList = useCallback(async () => {
+    try {
+      const list = httpsCallable(functions, "fetchBugReport");
+      const res = await list();
+      console.log("Bug List ", res.data);
+      setBugList(res.data.bugList);
+    } catch (error) {
+      alert("Backend error " + error.message);
     }
   }, [functions]);
 
@@ -39,7 +50,6 @@ export default function AdminDashboardPage() {
       try {
         let tokenResult = await user.getIdTokenResult(true);
 
-        console.log("Token Result 1 ", tokenResult);
         const isAdmin = tokenResult.claims?.admin == true;
 
         if (!isAdmin && user.email == "sharmakaran7910929@gmail.com") {
@@ -77,7 +87,8 @@ export default function AdminDashboardPage() {
   // Fetch users
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+    fetchBugList();
+  }, [fetchUsers, fetchBugList]);
 
   const handleDelete = async (uid) => {
     if (!window.confirm("Are you sure you want to delete this user ? ")) return;
@@ -266,7 +277,34 @@ export default function AdminDashboardPage() {
         { label: "Avg Session Time", value: "5m 32s", color: "#ffc107" },
       ],
     },
+    {
+      title: "🐞 Bug Reports",
+      stats: [
+        {
+          label: "Total bugs",
+          value: bugList.length,
+          color: "#dc3545",
+        },
+        {
+          label: "open",
+          value: bugList.filter((b) => b.status == "open").length,
+          color: "#ff4d4f",
+        },
+        {
+          label: "Progress",
+          value: bugList.filter((b) => b.status == "progress").length,
+          color: "#ffc107",
+        },
+        {
+          label: "Resolved",
+          value: bugList.filter((b) => b.status == "resolved").length,
+        },
+      ],
+      extra: <BugTable bugList={bugList} loading={bugList.length == 0} />,
+    },
   ];
+
+  // BUG uid
 
   return (
     <div
