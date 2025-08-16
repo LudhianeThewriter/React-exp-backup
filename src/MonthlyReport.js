@@ -416,7 +416,6 @@ const MonthlyReport = () => {
           <GSTInvoicePDF />
         </div>
       </div>
-      <PricingPlans />
     </div>
   );
 };

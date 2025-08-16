@@ -48,6 +48,12 @@ export default function UserReg() {
   const functions = getFunctions();
   const baseMail = "sharmakaran7910929@gmail.com";
 
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard"); // or wherever you want to send logged-in users
+    }
+  }, [user, navigate]);
+
   function handleUserSignupInfo(e) {
     setUserObject((prev) => {
       return { ...prev, [e.target.name]: e.target.value };

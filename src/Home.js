@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import "animate.css";
@@ -44,11 +44,18 @@ ChartJS.register(
   BarElement
 );
 
+import { AuthContext } from "./AuthContext";
+
 export default function App() {
   const [theme, setTheme] = useState("light");
   const navigate = useNavigate();
   const isDark = theme === "dark";
-
+  const { user, loading, userInfo } = useContext(AuthContext);
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard"); // or wherever you want to send logged-in users
+    }
+  }, [user, navigate]);
   const toggleTheme = () => setTheme(isDark ? "light" : "dark");
   const [feedback, setFeedback] = useState([
     {
@@ -84,6 +91,7 @@ export default function App() {
       rating: 5,
     },
   ]);
+
   useEffect(() => {
     const dropdown = document.querySelector(".dropdown-menu");
 
