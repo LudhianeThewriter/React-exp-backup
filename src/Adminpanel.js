@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
     try {
       const list = httpsCallable(functions, "fetchBugReport");
       const res = await list();
-      console.log("Bug List ", res.data);
+      console.log("Bug List ", res.data.bugList);
       setBugList(res.data.bugList);
     } catch (error) {
       alert("Backend error " + error.message);
@@ -300,7 +300,30 @@ export default function AdminDashboardPage() {
           value: bugList.filter((b) => b.status == "resolved").length,
         },
       ],
-      extra: <BugTable bugList={bugList} loading={bugList.length == 0} />,
+      extra: (
+        <div className="table-responsive mt-4">
+          <table className="table table-striped table-dark table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Reported date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bugList.map((bug) => (
+                <tr>
+                  <td>{bug.email}</td>
+                  <td>{bug.message}</td>
+                  <td>{bug.status}</td>
+                  <td>{bug.date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ),
     },
   ];
 

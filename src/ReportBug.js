@@ -30,7 +30,7 @@ export default function ReportBug() {
         email: user?.email || "not",
         message: message.trim(),
         status: "open",
-        createdAt: serverTimestamp(),
+        date: new Date().toISOString(),
       });
 
       setMessage(""); // clear input
