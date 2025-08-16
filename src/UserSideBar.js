@@ -15,6 +15,7 @@ export default function SideBar() {
     { icon: "🗓️", title: "Today's Summary" },
     { icon: "🧾", title: "Monthly Report" },
     { icon: "💰", title: "Set Budget" },
+    { icon: "🐞", title: "Report a Bug" },
   ];
 
   const analysisTools = [
@@ -138,6 +139,8 @@ export default function SideBar() {
                   navigate("/budget");
                 } else if (item.title == "Monthly Report") {
                   navigate("/report");
+                } else if (item.title == "Report a Bug") {
+                  navigate("/reportbug");
                 }
               }}
             >

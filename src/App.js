@@ -19,6 +19,7 @@ import PricingPlans from "./Price";
 //import AddExpenseForm from "./AddNewExpense";
 import AddNew from "./AddNewExpense";
 import AdminDashboardPage from "./Adminpanel";
+import ReportBug from "./ReportBug";
 export default function App() {
   return (
     <AuthProvider>
@@ -36,10 +37,9 @@ export default function App() {
 
               <Route path="/report" element={<MonthlyReport />} />
 
-              <Route path="/report" element={<MonthlyReport />} />
-
               <Route path="/adminpanel" element={<AdminDashboardPage />} />
               <Route path="/pricing" element={<PricingPlans />} />
+              <Route path="/reportbug" element={<ReportBug />} />
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
           </BrowserRouter>
