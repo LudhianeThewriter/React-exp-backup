@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db } from "./firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 //import "react-toastify/dist/ReactToastify.css";
 
 export default function ReportBug() {
@@ -30,7 +30,9 @@ export default function ReportBug() {
         email: user?.email || "not",
         message: message.trim(),
         status: "open",
-        date: new Date().toISOString(),
+        date: new Date().toISOString().split("T")[0],
+        resolvedDate:'',
+        resolvedmsg:''
       });
 
       setMessage(""); // clear input

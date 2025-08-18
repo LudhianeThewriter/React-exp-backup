@@ -131,6 +131,8 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const resolvedBug = () => {};
+
   const adminSections = [
     {
       title: "👥 Manage Users",
@@ -304,11 +306,14 @@ export default function AdminDashboardPage() {
         <div className="table-responsive mt-4">
           <table className="table table-striped table-dark table-bordered table-hover">
             <thead>
-              <tr>
+              <tr className="text-center">
                 <th>Email</th>
                 <th>Message</th>
                 <th>Status</th>
                 <th>Reported date</th>
+                <th>Resolved Date</th>
+                <th>Resolved Message</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -318,6 +323,19 @@ export default function AdminDashboardPage() {
                   <td>{bug.message}</td>
                   <td>{bug.status}</td>
                   <td>{bug.date}</td>
+                  <td>{bug.resolvedDate}</td>
+                  <td>{bug.resolvedmsg}</td>
+                  <td className="d-flex gap-2">
+                    <button className="btn btn-outline btn-success">
+                      Resolve
+                    </button>
+                    <button className="btn btn-outline btn-warning">
+                      Progress
+                    </button>
+                    <button className="btn btn-outline btn-danger">
+                      Not a Problem ?
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
