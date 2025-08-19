@@ -259,8 +259,35 @@ exports.fetchBugReport = functions.https.onCall(async (data, context) => {
 
     return { bugList };
   } catch (error) {
-    throw new functions.https.HttpsError('internal','Failed to fetch bug list');
+    throw new functions.https.HttpsError(
+      "internal",
+      "Failed to fetch bug list"
+    );
   }
+});
+
+//--Cloud function to verify Captcha token
+
+exports.verifyCaptcha = functions.https.onCall(async (data, context) => {
+  const token = data.token;
+  if (!token) {
+    throw new functions.https.HttpsError("invalid-argument", "No token found");
+  }
+  const secretKey = functions.config().recaptcha.secret;
+
+  // Send Request to Google captcha api
+  const response = await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`,
+    { method: "POST" }
+  );
+
+  const result = await response.json();
+
+  return {
+    success: result.success,
+    score: result.score || null,
+    action: result.action || null,
+  };
 });
 
 //--- CREATE DOWNLOADABLE EXCEL TEMPLATE FOR WITH SOME STANDARDS

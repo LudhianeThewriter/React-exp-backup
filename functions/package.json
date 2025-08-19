@@ -20,6 +20,7 @@
     "firebase-admin": "^11.11.1",
     "firebase-functions": "^4.9.0",
     "helmet": "^8.1.0",
+    "node-fetch": "^3.3.2",
     "razorpay": "^2.9.6",
     "xss-clean": "^0.1.4"
   },

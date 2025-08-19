@@ -4,6 +4,7 @@ import { auth, db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import RECAPTCHA from "react-google-recaptcha";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -25,6 +26,7 @@ import { motion } from "framer-motion";
 
 export default function UserReg() {
   const navigate = useNavigate();
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const [userObject, setUserObject] = useState({
     userEmail: "",
@@ -47,6 +49,10 @@ export default function UserReg() {
   const [unverifiedUser, setUnverifiedUser] = useState(null);
   const functions = getFunctions();
   const baseMail = "sharmakaran7910929@gmail.com";
+
+  const handleCaptchaChange = (token) => {
+    setCaptchaToken(token);
+  };
 
   useEffect(() => {
     if (user) {
@@ -83,7 +89,7 @@ export default function UserReg() {
     if (
       !userObject.userEmail ||
       !userObject.userPassword ||
-      !userObejct.userName ||
+      !userObject.userName ||
       userObject.gender === ""
     ) {
       setStatus("Please fill all required fields");
@@ -149,50 +155,68 @@ export default function UserReg() {
   };
   const handleLogIn = async (e) => {
     e.preventDefault();
+
+    if (!captchaToken) {
+      setStatus("Please complete Captcha first");
+      return;
+    }
     setLoading(true);
     setStatus("");
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        userLoginInfo.userEmail,
-        userLoginInfo.userPassword
-      );
+      const captchaFunction = httpsCallable(functions, "verifyCaptcha");
+      const result = await captchaFunction({ token: captchaToken });
+      console.log("Captcha result ", result.data);
+      if (result.data.success) {
+        setStatus("✅ Captcha verified. Proceeding with login...");
 
-      console.log("");
-      if (!userCredential.user.emailVerified) {
-        setUnverifiedUser(userCredential.user);
-        setEmailVerified(false);
-        setStatus("Email Not Verified. Please verify it before Logging In");
-        await signOut(auth);
-      } else {
-        setUser(userCredential.user);
-        const token = await userCredential.user.getIdToken(true);
-        console.log("Try to login token : ", token);
-        // https://us-central1-expense-a4a50.cloudfunctions.net/api
-        await fetch(
-          "https://us-central1-expense-a4a50.cloudfunctions.net/api/secure-endpoint",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              event: "login",
-              email: userCredential.user.email,
-            }),
+        try {
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            userLoginInfo.userEmail,
+            userLoginInfo.userPassword
+          );
+
+          console.log("");
+          if (!userCredential.user.emailVerified) {
+            setUnverifiedUser(userCredential.user);
+            setEmailVerified(false);
+            setStatus("Email Not Verified. Please verify it before Logging In");
+            await signOut(auth);
+          } else {
+            setUser(userCredential.user);
+            const token = await userCredential.user.getIdToken(true);
+            console.log("Try to login token : ", token);
+            // https://us-central1-expense-a4a50.cloudfunctions.net/api
+            await fetch(
+              "https://us-central1-expense-a4a50.cloudfunctions.net/api/secure-endpoint",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  event: "login",
+                  email: userCredential.user.email,
+                }),
+              }
+            );
+            navigate("/dashboard");
           }
-        );
-        navigate("/dashboard");
+        } catch (error) {
+          setStatus("Wrong Email / Password");
+          const logEvent = httpsCallable(functions, "logSuspiciousActivity");
+          logEvent({
+            type: "Login Failure",
+            email: userLoginInfo.userEmail,
+            error: error.message,
+          });
+        }
+      } else {
+        setStatus("❌ Captcha verification failed. Try again.");
       }
     } catch (error) {
-      setStatus("Wrong Email / Password");
-      const logEvent = httpsCallable(functions, "logSuspiciousActivity");
-      logEvent({
-        type: "Login Failure",
-        email: userLoginInfo.userEmail,
-        error: error.message,
-      });
+      setStatus("Error " + error.message);
     } finally {
       setLoading(false);
     }
@@ -430,6 +454,11 @@ export default function UserReg() {
                 onChange={handleUserLoginInfo}
               />
             </div>
+
+            <RECAPTCHA
+              sitekey="6Ld38KorAAAAAJ2v4W635IWzYCidNyzW1h28AeHD"
+              onChange={handleCaptchaChange}
+            />
 
             <div className="text-end mb-3">
               <button
