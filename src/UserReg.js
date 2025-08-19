@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { setPersistence, browserSessionPersistence } from "firebase/auth";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import RECAPTCHA from "react-google-recaptcha";
 import {
@@ -258,6 +259,20 @@ export default function UserReg() {
       alert("GeoLocation not supported");
     }
   }, []);
+
+  // Force session only persistence
+
+  useEffect(() => {
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        console.log(
+          "Auth persistence set to session-only (destroyed on browser close)."
+        );
+      })
+      .catch((err) => {
+        console.log("persistence error ", err);
+      });
+  });
 
   return (
     <div className="container my-5" style={{ maxWidth: "480px" }}>
