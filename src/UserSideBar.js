@@ -16,6 +16,7 @@ export default function SideBar() {
     { icon: "🧾", title: "Monthly Report" },
     { icon: "💰", title: "Set Budget" },
     { icon: "🐞", title: "Report a Bug" },
+    { icon: "👥", title: "Join Community" },
   ];
 
   const analysisTools = [
@@ -141,6 +142,8 @@ export default function SideBar() {
                   navigate("/report");
                 } else if (item.title == "Report a Bug") {
                   navigate("/reportbug");
+                } else if (item.title == "Join Community") {
+                  navigate("/public");
                 }
               }}
             >

@@ -20,6 +20,7 @@ import PricingPlans from "./Price";
 import AddNew from "./AddNewExpense";
 import AdminDashboardPage from "./Adminpanel";
 import ReportBug from "./ReportBug";
+import CommunityPage from './Community';
 export default function App() {
   return (
     <AuthProvider>
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/adminpanel" element={<AdminDashboardPage />} />
               <Route path="/pricing" element={<PricingPlans />} />
               <Route path="/reportbug" element={<ReportBug />} />
+              <Route path='/public' element={<CommunityPage />} /> 
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
           </BrowserRouter>

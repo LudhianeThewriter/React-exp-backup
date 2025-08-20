@@ -170,6 +170,8 @@ export default function UserReg() {
       if (result.data.success) {
         setStatus("✅ Captcha verified. Proceeding with login...");
 
+        await setPersistence(auth, browserSessionPersistence);
+
         try {
           const userCredential = await signInWithEmailAndPassword(
             auth,
@@ -261,18 +263,6 @@ export default function UserReg() {
   }, []);
 
   // Force session only persistence
-
-  useEffect(() => {
-    setPersistence(auth, browserSessionPersistence)
-      .then(() => {
-        console.log(
-          "Auth persistence set to session-only (destroyed on browser close)."
-        );
-      })
-      .catch((err) => {
-        console.log("persistence error ", err);
-      });
-  });
 
   return (
     <div className="container my-5" style={{ maxWidth: "480px" }}>
