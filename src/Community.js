@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FaUserFriends, FaCompass, FaComments, FaUser } from "react-icons/fa";
+import { Outlet, Link } from "react-router-dom";
 
 export default function CommunityPage() {
   const [search, setSearch] = useState("");
@@ -8,6 +10,7 @@ export default function CommunityPage() {
   const [chatUser, setChatUser] = useState(null);
   const [messages, setMessages] = useState({});
   const [chatInput, setChatInput] = useState("");
+  const [activeTab, setActiveTab] = useState("posts"); // default tab
 
   const users = [
     { username: "JohnDoe", bio: "Loves coding and coffee." },
@@ -44,48 +47,53 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-4">Community</h2>
+    <div
+      className="container-fluid p-0"
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
+      <div className="flex-grow-1">
+        <h2 className="p-3">Expencer's Community</h2>
+        <Link to="post">Welcome To Our Community , Get Started</Link>
+        {/* Tabs Content */}
+        {activeTab === "posts" && <Outlet />}
 
-      {/* Search Bar */}
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        {activeTab === "explore" && (
+          <div className="p-3">
+            <Outlet />
+          </div>
+        )}
+
+        {activeTab === "chat" && <Outlet />}
+
+        {activeTab == "profile" && <Outlet />}
       </div>
 
-      {/* User List */}
-      <div className="row">
-        {filteredUsers.map((user) => (
-          <div className="col-md-4 mb-3" key={user.username}>
-            <div className="card p-3 text-center">
-              <div
-                className="mx-auto d-flex align-items-center justify-content-center"
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: "50%",
-                  background: "#e0e0e0",
-                  fontSize: 24,
-                  color: "#999",
-                }}
-              >
-                👤
-              </div>
-              <h5 className="mt-2">{user.username}</h5>
-              <button
-                className="btn btn-sm btn-primary mt-2"
-                onClick={() => openProfile(user)}
-              >
-                View Profile
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Bottom Bar */}
+      <div className="d-flex justify-content-around align-items-center border-top bg-light py-2 position-sticky bottom-0">
+        <button className="btn" onClick={() => setActiveTab("posts")}>
+          <FaUserFriends size={24} />
+          <Link to="post" style={{ fontSize: 12 }}>
+            Posts
+          </Link>
+        </button>
+        <button className="btn" onClick={() => setActiveTab("explore")}>
+          <FaCompass size={24} />
+          <Link to="explore" style={{ fontSize: 12 }}>
+            Explore
+          </Link>
+        </button>
+        <button className="btn" onClick={() => setActiveTab("chat")}>
+          <FaComments size={24} />
+          <Link to="chat" style={{ fontSize: 12 }}>
+            Chat
+          </Link>
+        </button>
+        <button className="btn" onClick={() => setActiveTab("profile")}>
+          <FaUser size={24} />
+          <Link to="profile" style={{ fontSize: 12 }}>
+            Profile
+          </Link>
+        </button>
       </div>
 
       {/* Profile Modal */}
