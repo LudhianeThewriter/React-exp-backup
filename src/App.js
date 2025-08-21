@@ -24,7 +24,7 @@ import CommunityPage from "./Community";
 import ProfilePage from "./AppChat/ProfilePage";
 import ChatPage from "./AppChat/ChatPage";
 import ExplorePage from "./AppChat/ExplorePage";
-import PostPage from './AppChat/PostPage';
+import PostPage from "./AppChat/PostPage";
 export default function App() {
   return (
     <AuthProvider>
@@ -46,11 +46,11 @@ export default function App() {
               <Route path="/pricing" element={<PricingPlans />} />
               <Route path="/reportbug" element={<ReportBug />} />
               <Route path="/public" element={<CommunityPage />}>
+                <Route index element={<PostPage />} /> {/* default */}
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="chat" element={<ChatPage />} />
                 <Route path="explore" element={<ExplorePage />} />
                 <Route path="post" element={<PostPage />} />
-                
               </Route>
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />

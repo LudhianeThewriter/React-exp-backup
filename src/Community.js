@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useState , useContext , useEffect } from "react";
 import { FaUserFriends, FaCompass, FaComments, FaUser } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
-
+import {AuthContext} from './AuthContext'
 export default function CommunityPage() {
   const navigate = useNavigate();
+  const {user , userInfo , loading } = useContext(AuthContext)
+
 
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -47,6 +48,17 @@ export default function CommunityPage() {
     }));
     setChatInput("");
   };
+
+
+  // Authenticate the user access
+  useEffect(()=>{
+  if(!user){
+    navigate('/user')
+  }
+  },[user])
+
+
+  // Auth ends
 
   return (
     <div
