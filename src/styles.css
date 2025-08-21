@@ -81,3 +81,28 @@ ul li {
   min-height: 100vh;
   width: 250px;
 }
+
+.nav-btn {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, color 0.3s;
+  border-radius: 12px; /* rounded corners */
+}
+
+.nav-btn:hover {
+  background: #e9ecef; /* light gray hover */
+  color: #0d6efd; /* bootstrap primary */
+}
+
+.nav-btn:focus {
+  outline: none;
+}
+
+.nav-btn svg {
+  margin-bottom: 4px; /* little space between icon & text */
+}

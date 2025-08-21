@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaUserFriends, FaCompass, FaComments, FaUser } from "react-icons/fa";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function CommunityPage() {
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [friends, setFriends] = useState({});
@@ -48,161 +50,67 @@ export default function CommunityPage() {
 
   return (
     <div
-      className="container-fluid p-0"
+      className="container-fluid p-0 bg-dark text-white"
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <div className="flex-grow-1">
-        <h2 className="p-3">Expencer's Community</h2>
-        <Link to="post">Welcome To Our Community , Get Started</Link>
-        {/* Tabs Content */}
-        {activeTab === "posts" && <Outlet />}
-
-        {activeTab === "explore" && (
-          <div className="p-3">
-            <Outlet />
-          </div>
-        )}
-
-        {activeTab === "chat" && <Outlet />}
-
-        {activeTab == "profile" && <Outlet />}
+        <h2 className="p-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
+          Expencer's Community
+        </h2>
+        <Outlet />
       </div>
 
       {/* Bottom Bar */}
       <div className="d-flex justify-content-around align-items-center border-top bg-light py-2 position-sticky bottom-0">
-        <button className="btn" onClick={() => setActiveTab("posts")}>
+        <button
+          className={`nav-btn flex-fill p-2 ${
+            activeTab === "post" ? "active" : ""
+          }`}
+          onClick={() => {
+            setActiveTab("post");
+            navigate("post");
+          }}
+        >
           <FaUserFriends size={24} />
-          <Link to="post" style={{ fontSize: 12 }}>
-            Posts
-          </Link>
+          Post
         </button>
-        <button className="btn" onClick={() => setActiveTab("explore")}>
+        <button
+          className={`nav-btn flex-fill p-2 ${
+            activeTab === "explore" ? "active" : ""
+          }`}
+          onClick={() => {
+            setActiveTab("explore");
+            navigate("explore");
+          }}
+        >
           <FaCompass size={24} />
-          <Link to="explore" style={{ fontSize: 12 }}>
-            Explore
-          </Link>
+          Explore
         </button>
-        <button className="btn" onClick={() => setActiveTab("chat")}>
+        <button
+          className={`nav-btn flex-fill p-2 ${
+            activeTab === "chat" ? "active" : ""
+          }`}
+          onClick={() => {
+            setActiveTab("chat");
+            navigate("chat");
+          }}
+        >
           <FaComments size={24} />
-          <Link to="chat" style={{ fontSize: 12 }}>
-            Chat
-          </Link>
+          Chat
         </button>
-        <button className="btn" onClick={() => setActiveTab("profile")}>
+        <button
+          className={`nav-btn flex-fill p-2 ${
+            activeTab === "profile" ? "active" : ""
+          }`}
+          onClick={() => {
+            setActiveTab("profile");
+            navigate("profile");
+          }}
+        >
           <FaUser size={24} />
-          <Link to="profile" style={{ fontSize: 12 }}>
-            Profile
-          </Link>
+          Profile
         </button>
       </div>
-
-      {/* Profile Modal */}
-      {selectedUser && (
-        <div
-          className="modal show fade d-block"
-          tabIndex="-1"
-          role="dialog"
-          style={{ background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog" role="document">
-            <div className="modal-content text-center">
-              <div className="modal-header">
-                <h5 className="modal-title">User Profile</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setSelectedUser(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div
-                  className="mx-auto d-flex align-items-center justify-content-center"
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: "50%",
-                    background: "#e0e0e0",
-                    fontSize: 24,
-                    color: "#999",
-                  }}
-                >
-                  👤
-                </div>
-                <h4 className="mt-2">{selectedUser.username}</h4>
-                <p>{selectedUser.bio}</p>
-                {!friends[selectedUser.username] ? (
-                  <button
-                    className="btn btn-success"
-                    onClick={() => handleFriendRequest(selectedUser.username)}
-                  >
-                    Send Friend Request
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => openChat(selectedUser)}
-                  >
-                    Message
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Chat Modal */}
-      {chatUser && (
-        <div
-          className="modal show fade d-block"
-          tabIndex="-1"
-          role="dialog"
-          style={{ background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-scrollable" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Chat with {chatUser}</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setChatUser(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div
-                  style={{
-                    height: 300,
-                    overflowY: "auto",
-                    border: "1px solid #ddd",
-                    borderRadius: 5,
-                    padding: 10,
-                    background: "#f8f9fa",
-                  }}
-                >
-                  {messages[chatUser]?.map((msg, i) => (
-                    <div key={i}>
-                      <strong>{msg.sender}:</strong> {msg.text}
-                    </div>
-                  ))}
-                </div>
-                <div className="input-group mt-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Type a message..."
-                  />
-                  <button className="btn btn-primary" onClick={sendMessage}>
-                    Send
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
