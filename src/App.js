@@ -25,6 +25,7 @@ import ProfilePage from "./AppChat/ProfilePage";
 import ChatPage from "./AppChat/ChatPage";
 import ExplorePage from "./AppChat/ExplorePage";
 import PostPage from "./AppChat/PostPage";
+import UploadPhoto from "./AppChat/ProfilePic/UploadPic";
 export default function App() {
   return (
     <AuthProvider>
@@ -52,7 +53,9 @@ export default function App() {
                 <Route path="explore" element={<ExplorePage />} />
                 <Route path="post" element={<PostPage />} />
               </Route>
+              <Route path="/uploadPic" element={<UploadPhoto />} />
             </Routes>
+
             <ToastContainer position="top-right" autoClose={3000} />
           </BrowserRouter>
         </BudgetProvider>

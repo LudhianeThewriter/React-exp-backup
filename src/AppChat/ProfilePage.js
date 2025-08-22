@@ -11,6 +11,10 @@ export default function ProfilePage() {
     "https://via.placeholder.com/400x250",
   ];
 
+  // handle profile pic
+
+  //-------
+
   return (
     <div className="bg-dark text-light min-vh-100 py-5">
       <div className="container">
@@ -25,6 +29,10 @@ export default function ProfilePage() {
                   This is a short bio about John Doe.
                 </p>
               </div>
+              <button className="btn btn-outline">Change Profile Pic</button>
+              <button className="btn btn-outline">View Profile Pic</button>
+              <button className="btn btn-outline">Add Profile Pic</button>
+              <button className="btn btn-outline">Remove Profile Pic</button>
             </div>
 
             <div className="card bg-secondary text-light shadow rounded-4 mt-4">

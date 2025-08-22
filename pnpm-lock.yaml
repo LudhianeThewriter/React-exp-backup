@@ -24,7 +24,7 @@ dependencies:
     specifier: 4.4.9
     version: 4.4.9
   firebase:
-    specifier: 11.6.1
+    specifier: ^11.6.1
     version: 11.6.1
   framer-motion:
     specifier: 12.12.2
@@ -59,6 +59,9 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.3.1(react@18.3.1)
+  react-google-recaptcha:
+    specifier: ^3.1.0
+    version: 3.1.0(react@18.3.1)
   react-icons:
     specifier: 5.5.0
     version: 5.5.0(react@18.3.1)
@@ -6691,6 +6694,12 @@ packages:
     hasBin: true
     dev: false
 
+  /hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+    dependencies:
+      react-is: 16.13.1
+    dev: false
+
   /hoopy@0.1.4:
     resolution: {integrity: sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==}
     engines: {node: '>= 6.0.0'}
@@ -9829,6 +9838,16 @@ packages:
       whatwg-fetch: 3.6.20
     dev: false
 
+  /react-async-script@1.2.0(react@18.3.1):
+    resolution: {integrity: sha512-bCpkbm9JiAuMGhkqoAiC0lLkb40DJ0HOEJIku+9JDjxX3Rcs+ztEOG13wbrOskt3n2DTrjshhaQ/iay+SnGg5Q==}
+    peerDependencies:
+      react: '>=16.4.1'
+    dependencies:
+      hoist-non-react-statics: 3.3.2
+      prop-types: 15.8.1
+      react: 18.3.1
+    dev: false
+
   /react-bootstrap@2.10.10(@types/react@18.2.0)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-gMckKUqn8aK/vCnfwoBpBVFUGT9SVQxwsYrp9yDHt0arXMamxALerliKBxr1TPbntirK/HGrUAHYbAeQTa9GHQ==}
     peerDependencies:
@@ -9925,6 +9944,16 @@ packages:
 
   /react-error-overlay@6.1.0:
     resolution: {integrity: sha512-SN/U6Ytxf1QGkw/9ve5Y+NxBbZM6Ht95tuXNMKs8EJyFa/Vy/+Co3stop3KBHARfn/giv+Lj1uUnTfOJ3moFEQ==}
+    dev: false
+
+  /react-google-recaptcha@3.1.0(react@18.3.1):
+    resolution: {integrity: sha512-cYW2/DWas8nEKZGD7SCu9BSuVz8iOcOLHChHyi7upUuVhkpkhYG/6N3KDiTQ3XAiZ2UAZkfvYKMfAHOzBOcGEg==}
+    peerDependencies:
+      react: '>=16.4.1'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-async-script: 1.2.0(react@18.3.1)
     dev: false
 
   /react-icons@5.5.0(react@18.3.1):
