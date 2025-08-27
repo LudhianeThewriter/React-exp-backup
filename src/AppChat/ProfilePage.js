@@ -1,5 +1,5 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useState, useEffect, useContext, useRef } from "react";
+
 import {
   FaUser,
   FaUsers,
@@ -10,8 +10,45 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { Dropdown } from "react-bootstrap";
+import { ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
+import { AuthContext } from "../AuthContext";
+import { image } from "framer-motion/client";
 
 export default function ProfilePage() {
+  const [imageUrl, setImageUrl] = useState("");
+  const { user, userInfo } = useContext(AuthContext);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  function handleShowHideDropdown() {
+    setShowDropdown(!showDropdown);
+  }
+
+  useEffect(() => {
+    const imageRef = ref(storage, `users/${user.uid}/profile.jpg`);
+    getDownloadURL(imageRef)
+      .then((url) => {
+        setImageUrl(url);
+        console.log("imageRef : ", imageRef, " url : ", url);
+      })
+      .catch((error) => alert(error.message));
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutSide = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutSide);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
+
   const friends = ["Alice", "Bob", "Charlie", "Diana"];
   const posts = [
     "https://via.placeholder.com/400x250",
@@ -35,9 +72,12 @@ export default function ProfilePage() {
           <div className="col-md-4">
             <div className="card bg-secondary text-light shadow rounded-4">
               <div className="card-body text-center position-relative">
-                <div className="position-relative d-inline-block">
+                <div
+                  className="position-relative d-inline-block"
+                  ref={dropdownRef}
+                >
                   <img
-                    src="https://share.google/images/6I6L5fKZb6ML7RVxt"
+                    src={imageUrl}
                     alt="profile"
                     className="rounded-circle mb-3 shadow"
                     style={{
@@ -45,58 +85,68 @@ export default function ProfilePage() {
                       height: "120px",
                       objectFit: "cover",
                       border: "3px solid #fff",
+                      cursor: "pointer",
                     }}
+                    onClick={handleShowHideDropdown}
                   />
 
                   {/*Three dots Option*/}
                   <Dropdown
+                    show={showDropdown}
                     className="position-absolute"
                     style={{ top: "5px", right: "5px" }}
                   >
-                    <Dropdown.Toggle
-                      as="div"
-                      style={{
-                        cursor: "pointer",
-                        fontSize: "20px",
-                        color: "#000",
-                        userSelect: "none",
-                        padding: "4px 8px",
-                        border: "0px",
+                    <Dropdown.Toggle as="div" style={{}}></Dropdown.Toggle>
 
-                        borderRadius: "50%",
-                        boxShadow: "0 0 3px rgba(0,0,0,0.3)",
-                      }}
-                    ></Dropdown.Toggle>
-
-                    <Dropdown.Menu align="end" className="p-0 bg-dark">
+                    <Dropdown.Menu
+                      align="end"
+                      className="p-0 border border-primary rounded-border dropdown-item-custom"
+                    >
                       <Dropdown.Item
-                        onClick={handleChange}
-                        className="d-flex align-items-center gap-2 text-white fw-bold"
+                        onClick={() => {
+                          handleChange();
+                          setShowDropdown(false);
+                        }}
+                        className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
+                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaEdit /> Change
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={handleView}
-                        className="d-flex align-items-center gap-2 text-white fw-bold"
+                        onClick={() => {
+                          handleView();
+                          setShowDropdown(false);
+                        }}
+                        className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
+                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaEye /> View
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={handleAdd}
-                        className="d-flex align-items-center gap-2 text-white fw-bold"
+                        onClick={() => {
+                          handleAdd();
+                          setShowDropdown(false);
+                        }}
+                        className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border "
+                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaPlus /> Add
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={handleRemove}
-                        className="d-flex align-items-center gap-2 text-white fw-bold"
+                        onClick={() => {
+                          handleRemove();
+                          setShowDropdown(false);
+                        }}
+                        className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
                       >
                         <FaTrash /> Remove
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </div>
-                <h3 className="fw-bold">John Doe</h3>
+                <h3 className="fw-bold ">
+                  {userInfo?.username || "Loading..."}
+                </h3>
                 <p className="text-muted">
                   This is a short bio about John Doe.
                 </p>

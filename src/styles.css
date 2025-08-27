@@ -106,3 +106,13 @@ ul li {
 .nav-btn svg {
   margin-bottom: 4px; /* little space between icon & text */
 }
+
+/* Add this to your CSS file */
+.dropdown-item-custom {
+  background-color: rgb(217, 255, 0);
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item-custom:hover {
+  background-color: rgb(115, 255, 0); /* Light blue */
+}
