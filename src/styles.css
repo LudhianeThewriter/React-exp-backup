@@ -107,12 +107,24 @@ ul li {
   margin-bottom: 4px; /* little space between icon & text */
 }
 
-/* Add this to your CSS file */
 .dropdown-item-custom {
-  background-color: rgb(217, 255, 0);
-  transition: background-color 0.2s ease;
+  background-color: #ffffff; /* clean white */
+  color: #0a2540; /* deep navy text */
+  font-weight: 600;
 }
 
 .dropdown-item-custom:hover {
-  background-color: rgb(115, 255, 0); /* Light blue */
+  background-color: #4a90e2; /* modern blue */
+  color: #ffffff; /* white text */
+}
+
+/* friend list */
+.friend-item {
+  background-color: #d1f2eb; /* mint green */
+  color: #145a32; /* dark green text */
+}
+
+.friend-item:hover {
+  background-color: #48c9b0; /* teal */
+  color: #ffffff;
 }

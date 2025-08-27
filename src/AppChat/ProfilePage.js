@@ -8,8 +8,10 @@ import {
   FaEye,
   FaPlus,
   FaTrash,
+  FaThumbsUp,
+  FaThumbsDown,
 } from "react-icons/fa";
-import { Dropdown } from "react-bootstrap";
+import { Accordion, Dropdown } from "react-bootstrap";
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { AuthContext } from "../AuthContext";
@@ -70,7 +72,13 @@ export default function ProfilePage() {
         <div className="row g-4">
           {/* Left Column */}
           <div className="col-md-4">
-            <div className="card bg-secondary text-light shadow rounded-4">
+            <div
+              className="card  shadow rounded-4"
+              style={{
+                backgroundColor: "rgb(123, 175, 212)",
+                color: "#0A2540",
+              }}
+            >
               <div className="card-body text-center position-relative">
                 <div
                   className="position-relative d-inline-block"
@@ -100,7 +108,7 @@ export default function ProfilePage() {
 
                     <Dropdown.Menu
                       align="end"
-                      className="p-0 border border-primary rounded-border dropdown-item-custom"
+                      className="p-0 border border-primary rounded-border "
                     >
                       <Dropdown.Item
                         onClick={() => {
@@ -144,35 +152,71 @@ export default function ProfilePage() {
                     </Dropdown.Menu>
                   </Dropdown>
                 </div>
+
                 <h3 className="fw-bold ">
                   {userInfo?.username || "Loading..."}
                 </h3>
                 <p className="text-muted">
                   This is a short bio about John Doe.
                 </p>
+
+                <div className="d-flex justify-content-center gap-3 mt-3">
+                  {/* Friends */}
+                  <div
+                    className="d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm"
+                    style={{ backgroundColor: "#FFECB3", color: "#6B4226" }} // warm amber bg + dark text
+                  >
+                    <FaUsers />{" "}
+                    <span className="fw-bold">{friends.length}</span>
+                  </div>
+
+                  {/* Posts */}
+                  <div
+                    className="d-flex align-items-center gap-2 px-3 py-1 rounded-pill shadow-sm"
+                    style={{ backgroundColor: "#B3E5FC", color: "#01579B" }} // light blue bg + dark blue text
+                  >
+                    <FaImage /> <span className="fw-bold">{posts.length}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="card bg-secondary text-light shadow rounded-4 mt-4">
-              <div className="card-header d-flex align-items-center">
-                <FaUsers className="me-2" /> Friends
-              </div>
-              <ul className="list-group list-group-flush">
-                {friends.map((friend, index) => (
-                  <li
-                    key={index}
-                    className="list-group-item bg-secondary text-light border-light"
-                  >
-                    {friend}
-                  </li>
-                ))}
-              </ul>
+            <div className="card text-light shadow rounded-border mt-4">
+              <Accordion defaultActiveKey="0" flush>
+                <Accordion.Item eventKey="0" className="">
+                  <Accordion.Header>
+                    <FaUsers className="me-2" /> Friends
+                  </Accordion.Header>
+                  <Accordion.Body className="p-0">
+                    <ul className="list-group list-group-flush">
+                      {friends.map((friend, index) => (
+                        <li
+                          key={index}
+                          className="list-group-item friend-item  "
+                        >
+                          <img
+                            src={`https://i.pravatar.cc/40?u=${index}`} // placeholder avatar
+                            alt={friend}
+                            className="rounded-circle"
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              objectFit: "cover",
+                            }}
+                          />
+                          <span>{" " + friend}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </div>
           </div>
-
           {/* Right Column */}
-          <div className="col-md-8">
-            <div className="card bg-secondary text-light shadow rounded-4">
+
+          <div className="col-md-7">
+            <div className="card bg-dark text-light shadow rounded-4">
               <div className="card-header d-flex align-items-center">
                 <FaImage className="me-2" /> Posts
               </div>
@@ -180,17 +224,57 @@ export default function ProfilePage() {
                 <div className="row g-3">
                   {posts.map((post, index) => (
                     <div key={index} className="col-md-6">
-                      <img
-                        src={post}
-                        alt={`Post ${index}`}
-                        className="img-fluid rounded-3 shadow-sm"
-                      />
+                      <div
+                        className="card h-100 shadow-sm rounded-3"
+                        style={{
+                          backgroundColor: "#1c1c1c",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {/* Post Image */}
+                        <img
+                          src={`https://i.pravatar.cc/300?u=${index}`} // Placeholder large image
+                          alt={`Post ${index}`}
+                          className="img-fluid rounded-top"
+                          style={{ height: "200px", objectFit: "cover" }}
+                        />
+
+                        {/* Caption */}
+                        <div className="card-body">
+                          <p className="card-text text-light">
+                            This is a caption for post {index + 1}.
+                          </p>
+
+                          {/* Like/Dislike Buttons */}
+                          <div className="d-flex align-items-center gap-3">
+                            <button
+                              className="btn btn-sm "
+                              style={{
+                                color: "#4A90E2",
+                                backgroundColor: "#E5F0FF",
+                              }}
+                            >
+                              <FaThumbsUp />
+                            </button>
+                            <button
+                              className="btn btn-sm "
+                              style={{
+                                color: "#FF4D4F",
+                                backgroundColor: "#FFE5E5",
+                              }}
+                            >
+                              <FaThumbsDown />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           </div>
+          {/* Right column ends */}
         </div>
       </div>
     </div>
