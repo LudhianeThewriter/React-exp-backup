@@ -13,10 +13,12 @@ import {
 } from "react-icons/fa";
 import { Accordion, Dropdown } from "react-bootstrap";
 import { ref, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
+import { storage, db } from "../firebase";
 import { AuthContext } from "../AuthContext";
 import { image } from "framer-motion/client";
 import { UploadPhoto } from "./ProfilePic/UploadPic";
+import { doc, getDoc } from "firebase/firestore";
+import { listenToProfilePic } from "../FirebaseUtils";
 
 export default function ProfilePage() {
   const [imageUrl, setImageUrl] = useState("");
@@ -24,19 +26,31 @@ export default function ProfilePage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  const fetchProfilePic = async () => {
+    try {
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists && docSnap.data().photoURL) {
+        setImageUrl(docSnap.data().photoURL);
+      }
+    } catch (err) {
+      console.log("Loading err ", err);
+      alert("Failed to load ", err.message);
+    }
+  };
+
   function handleShowHideDropdown() {
     setShowDropdown(!showDropdown);
   }
 
   useEffect(() => {
-    const imageRef = ref(storage, `users/${user.uid}/profile.jpg`);
-    getDownloadURL(imageRef)
-      .then((url) => {
-        setImageUrl(url);
-        console.log("imageRef : ", imageRef, " url : ", url);
-      })
-      .catch((error) => alert(error.message));
-  }, []);
+    if (!user) return;
+    const unsubscribe = listenToProfilePic(user.uid, (url) => {
+      setImageUrl(url);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutSide = (e) => {

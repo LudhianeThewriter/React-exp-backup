@@ -1,3 +1,4 @@
+import { IoEllipseSharp } from "react-icons/io5";
 import { db } from "./firebase";
 import {
   collection,
@@ -62,4 +63,19 @@ export const addBudget = async (userId, budget) => {
 
 export const deleteBudget = async (userId, budgetId) => {
   await deleteDoc(doc(db, "users", userId, "budget", budgetId));
+};
+
+// Real time updates for profile photoURL
+
+export const listenToProfilePic =  (userId, callback) => {
+  const docRef = doc(db, "users", userId);
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      callback(data.photoURL || "");
+    }else{
+      callback('')
+    }
+    
+  });
 };

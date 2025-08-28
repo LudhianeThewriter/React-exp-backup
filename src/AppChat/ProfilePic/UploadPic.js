@@ -6,23 +6,22 @@ import { AuthContext } from "../../AuthContext";
 import { toast } from "react-toastify";
 
 export function UploadPhoto() {
-  const [file, setFile] = useState(null);
   const { user } = useContext(AuthContext);
   const videoRef = useRef(null);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState({});
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    const ext = file.name.split(".").pop();
     if (file) {
       const imgUrl = URL.createObjectURL(file);
-      setPreview(imgUrl);
-      console.log("File :", file);
+      setPreview({ file, imgUrl, ext });
     }
   };
 
   const handleUpload = async (file) => {
-    if (!file) return;
-    console.log("Preview : ", file);
+    if (!preview?.file) return;
+
     try {
       if (!user) {
         alert("Login First");
@@ -31,11 +30,15 @@ export function UploadPhoto() {
       }
 
       // create storage reference
-      const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
+      console.log();
+      const storageRef = ref(
+        storage,
+        `users/${user.uid}/profile.${preview.ext}`
+      );
 
       //upload file
 
-      await uploadBytes(storageRef, file);
+      await uploadBytes(storageRef, preview.file);
 
       // get download url
 
@@ -73,12 +76,6 @@ export function UploadPhoto() {
   return (
     <>
       <div>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-        <button onClick={handleUpload}>Upload</button>
         <hr />
         <div className="container mt-4 text-center">
           <h4>Upload Profile Photo</h4>
@@ -86,7 +83,7 @@ export function UploadPhoto() {
             type="file"
             accept="image/*"
             capture="environment"
-            onChange={handleFileChange}
+            onChange={(e) => handleFileChange(e)}
             style={{ display: "none" }}
             id="camerainput"
           />
@@ -98,16 +95,13 @@ export function UploadPhoto() {
               <div className="mt-3">
                 <h6>Preview :</h6>
                 <img
-                  src={preview}
+                  src={preview.imgUrl}
                   alt="preview"
                   className="img-thumbnail"
                   width="200"
                 />
               </div>
-              <button
-                className="btn btn-success"
-                onClick={() => handleUpload(preview)}
-              >
+              <button className="btn btn-success" onClick={handleUpload}>
                 Upload
               </button>
             </>

@@ -1,11 +1,10 @@
-import React, { useState , useContext , useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { FaUserFriends, FaCompass, FaComments, FaUser } from "react-icons/fa";
 import { Outlet, useNavigate } from "react-router-dom";
-import {AuthContext} from './AuthContext'
+import { AuthContext } from "./AuthContext";
 export default function CommunityPage() {
   const navigate = useNavigate();
-  const {user , userInfo , loading } = useContext(AuthContext)
-
+  const { user, userInfo, loading } = useContext(AuthContext);
 
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -49,14 +48,13 @@ export default function CommunityPage() {
     setChatInput("");
   };
 
-
   // Authenticate the user access
-  useEffect(()=>{
-  if(!user){
-    navigate('/user')
-  }
-  },[user])
-
+  useEffect(() => {
+    if (!user || userInfo?.role != "admin") {
+      navigate("/user");
+      alert("Only Admins are allowed");
+    }
+  }, [user, userInfo]);
 
   // Auth ends
 
