@@ -9,10 +9,20 @@ export function UploadPhoto() {
   const [file, setFile] = useState(null);
   const { user } = useContext(AuthContext);
   const videoRef = useRef(null);
+  const [preview, setPreview] = useState(null);
 
-  const handleUpload = async () => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imgUrl = URL.createObjectURL(file);
+      setPreview(imgUrl);
+      console.log("File :", file);
+    }
+  };
+
+  const handleUpload = async (file) => {
     if (!file) return;
-
+    console.log("Preview : ", file);
     try {
       if (!user) {
         alert("Login First");
@@ -70,23 +80,38 @@ export function UploadPhoto() {
         />
         <button onClick={handleUpload}>Upload</button>
         <hr />
-
-        <div className="card shadow-lg p-3 my-3 text-center">
-          <h4 className="mb-3">📷 Camera Access</h4>
-          <video
-            ref={videoRef}
-            className="rounded-border"
-            style={{
-              width: "100%",
-              maxWidth: "400px",
-              height: "auto",
-            }}
-          ></video>
-          <div className="mt-3">
-            <button className="btn btn-primary" onClick={startCamera}>
-              📷 Enable Camera
-            </button>
-          </div>
+        <div className="container mt-4 text-center">
+          <h4>Upload Profile Photo</h4>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+            id="camerainput"
+          />
+          <label htmlFor="camerainput" className="btn btn-primary mt-2">
+            📷 Open Camera / Gallery
+          </label>
+          {preview && (
+            <>
+              <div className="mt-3">
+                <h6>Preview :</h6>
+                <img
+                  src={preview}
+                  alt="preview"
+                  className="img-thumbnail"
+                  width="200"
+                />
+              </div>
+              <button
+                className="btn btn-success"
+                onClick={() => handleUpload(preview)}
+              >
+                Upload
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>
