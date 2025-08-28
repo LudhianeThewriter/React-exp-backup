@@ -25,7 +25,7 @@ import ProfilePage from "./AppChat/ProfilePage";
 import ChatPage from "./AppChat/ChatPage";
 import ExplorePage from "./AppChat/ExplorePage";
 import PostPage from "./AppChat/PostPage";
-import UploadPhoto from "./AppChat/ProfilePic/UploadPic";
+import { UploadPhoto } from "./AppChat/ProfilePic/UploadPic";
 export default function App() {
   return (
     <AuthProvider>

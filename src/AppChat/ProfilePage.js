@@ -16,6 +16,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { AuthContext } from "../AuthContext";
 import { image } from "framer-motion/client";
+import { UploadPhoto } from "./ProfilePic/UploadPic";
 
 export default function ProfilePage() {
   const [imageUrl, setImageUrl] = useState("");
@@ -212,6 +213,8 @@ export default function ProfilePage() {
                 </Accordion.Item>
               </Accordion>
             </div>
+
+            <UploadPhoto />
           </div>
           {/* Right Column */}
 
