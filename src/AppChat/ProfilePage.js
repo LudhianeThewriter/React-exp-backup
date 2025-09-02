@@ -42,12 +42,21 @@ export default function ProfilePage() {
       console.log("Loading err ", err);
       alert("Failed to load ", err.message);
     }
+
+    console.log("Deleting file at path:", userInfo.photoPath);
   };
 
   const handleRemovePic = async () => {
     try {
+      console.log("userInfo ", userInfo);
+      if (!userInfo.photoPath) {
+        toast.error("No photo to remove!");
+        return;
+      }
       const userDocRef = doc(db, "users", user.uid);
-      const storageRef = ref(storage, userInfo.photoPath);
+      const docSnap = await getDoc(userDocRef);
+      const path = docSnap.data()?.photoPath || "";
+      const storageRef = ref(storage, path);
       await deleteObject(storageRef);
       await updateDoc(userDocRef, { photoURL: "", photoPath: "" });
       setImageUrl("");
