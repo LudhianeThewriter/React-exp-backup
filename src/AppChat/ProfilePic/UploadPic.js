@@ -1,26 +1,34 @@
-import { useState, useContext, useRef } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage, db, auth } from "../../firebase";
+import { storage, db } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { AuthContext } from "../../AuthContext";
 import { toast } from "react-toastify";
 
 export function UploadPhoto() {
   const { user } = useContext(AuthContext);
-  const videoRef = useRef(null);
-  const [preview, setPreview] = useState({});
+  // const videoRef = useRef(null);
+  const fileRef = useRef(null);
+  const [preview, setPreview] = useState(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     const ext = file.name.split(".").pop();
-    if (file) {
-      const imgUrl = URL.createObjectURL(file);
-      setPreview({ file, imgUrl, ext });
+
+    const imgUrl = URL.createObjectURL(file);
+
+    if (preview?.imgUrl) {
+      URL.revokeObjectURL(preview.imgUrl);
     }
+
+    fileRef.current = file;
+    setPreview({ imgUrl, ext });
   };
 
   const handleUpload = async (file) => {
-    if (!preview?.file) return;
+    if (!fileRef.current || !preview) return;
 
     try {
       if (!user) {
@@ -30,7 +38,7 @@ export function UploadPhoto() {
       }
 
       // create storage reference
-      console.log();
+
       const storageRef = ref(
         storage,
         `users/${user.uid}/profile.${preview.ext}`
@@ -38,7 +46,7 @@ export function UploadPhoto() {
 
       //upload file
 
-      await uploadBytes(storageRef, preview.file);
+      await uploadBytes(storageRef, fileRef.current);
 
       // get download url
 
@@ -48,7 +56,10 @@ export function UploadPhoto() {
 
       await setDoc(
         doc(db, "users", user.uid),
-        { photoURL: url },
+        {
+          photoURL: url,
+          photoPath: `users/${user.uid}/profile.${preview.ext}`,
+        },
         { merge: true }
       );
       toast.success("Photo Uploaded");
@@ -58,6 +69,7 @@ export function UploadPhoto() {
   };
 
   // Handle Camera Access
+  /*
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -67,12 +79,28 @@ export function UploadPhoto() {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        console.log("Full MediaStream:", stream);
+        console.log("Tracks:", stream.getTracks());
+        console.log("Video Tracks:", stream.getVideoTracks());
+        console.log("Audio Tracks:", stream.getAudioTracks());
       }
     } catch (err) {
       toast.error("Failed to upload " + err.message);
       console.log("Err :", err.message);
     }
-  }
+  }*/
+
+  useEffect(() => {
+    return () => {
+      if (preview?.imgUrl) {
+        URL.revokeObjectURL(preview.imgUrl);
+      }
+
+      /*   if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }*/
+    };
+  }, [preview]);
   return (
     <>
       <div>
@@ -88,7 +116,18 @@ export function UploadPhoto() {
             id="camerainput"
           />
           <label htmlFor="camerainput" className="btn btn-primary mt-2">
-            📷 Open Camera / Gallery
+            📷 Take Photo
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileChange(e)}
+            style={{ display: "none" }}
+            id="galleryinput"
+          />
+          <label htmlFor="galleryinput" className="btn btn-primary mt-2">
+            Upload from Gallery
           </label>
           {preview && (
             <>

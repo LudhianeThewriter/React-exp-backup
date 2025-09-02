@@ -12,17 +12,22 @@ import {
   FaThumbsDown,
 } from "react-icons/fa";
 import { Accordion, Dropdown } from "react-bootstrap";
-import { ref, getDownloadURL } from "firebase/storage";
+import { ref, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage, db } from "../firebase";
 import { AuthContext } from "../AuthContext";
 import { image } from "framer-motion/client";
 import { UploadPhoto } from "./ProfilePic/UploadPic";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { listenToProfilePic } from "../FirebaseUtils";
+import { toast } from "react-toastify";
 
 export default function ProfilePage() {
   const [imageUrl, setImageUrl] = useState("");
   const { user, userInfo } = useContext(AuthContext);
+  const [profileModal, setProfileModal] = useState({
+    open: false,
+    type: "",
+  });
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -39,6 +44,18 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemovePic = async () => {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const storageRef = ref(storage, userInfo.photoPath);
+      await deleteObject(storageRef);
+      await updateDoc(userDocRef, { photoURL: "", photoPath: "" });
+      setImageUrl("");
+      toast.success("Photo Removed !");
+    } catch (err) {
+      toast.error("Failed to Remove " + err.message);
+    }
+  };
   function handleShowHideDropdown() {
     setShowDropdown(!showDropdown);
   }
@@ -129,6 +146,7 @@ export default function ProfilePage() {
                         onClick={() => {
                           handleChange();
                           setShowDropdown(false);
+                          setProfileModal({ open: true, type: "change" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
                         style={{ borderBottom: "1px solid #0d6efd" }}
@@ -139,6 +157,7 @@ export default function ProfilePage() {
                         onClick={() => {
                           handleView();
                           setShowDropdown(false);
+                          setProfileModal({ open: true, type: "view" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
                         style={{ borderBottom: "1px solid #0d6efd" }}
@@ -149,16 +168,18 @@ export default function ProfilePage() {
                         onClick={() => {
                           handleAdd();
                           setShowDropdown(false);
+                          setProfileModal({ open: true, type: "take" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border "
                         style={{ borderBottom: "1px solid #0d6efd" }}
                       >
-                        <FaPlus /> Add
+                        <FaPlus /> Take
                       </Dropdown.Item>
                       <Dropdown.Item
                         onClick={() => {
                           handleRemove();
                           setShowDropdown(false);
+                          setProfileModal({ open: true, type: "remove" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
                       >
@@ -227,9 +248,52 @@ export default function ProfilePage() {
                 </Accordion.Item>
               </Accordion>
             </div>
-
-            <UploadPhoto />
           </div>
+          {profileModal.open && (
+            <div
+              className="profile-modal-overlay"
+              onClick={() => setProfileModal({ open: false, type: "" })}
+            >
+              <div
+                className="profile-modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {profileModal.type == "view" && (
+                  <>
+                    <h3 className="mb-3">View Profile Photo</h3>
+                    <img
+                      src={imageUrl}
+                      alt="profile"
+                      className="img-fluid rounded"
+                    />
+                  </>
+                )}
+
+                {profileModal.type == "change" && (
+                  <>
+                    <h3 className="mb-3">Change Profile Photo</h3>
+                    <UploadPhoto />
+                  </>
+                )}
+
+                {profileModal.type == "remove" && (
+                  <>
+                    <h3 className="mb-3">Remove Profile Photo</h3>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => {
+                        handleRemovePic();
+                        setProfileModal({ open: false, type: "" });
+                      }}
+                    >
+                      <FaTrash />
+                      Confirm Remove
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
           {/* Right Column */}
 
           <div className="col-md-7">
