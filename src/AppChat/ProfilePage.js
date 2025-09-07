@@ -20,10 +20,13 @@ import { UploadPhoto } from "./ProfilePic/UploadPic";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { listenToProfilePic } from "../FirebaseUtils";
 import { toast } from "react-toastify";
+import { useProfile } from "./ProfileContext";
 
 export default function ProfilePage() {
+  const { user, profilePath, clearProfilePic } = useProfile();
+  const [actionLoading, setActionLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-  const { user, userInfo } = useContext(AuthContext);
+  const { userInfo, loading } = useContext(AuthContext);
   const [profileModal, setProfileModal] = useState({
     open: false,
     type: "",
@@ -48,20 +51,22 @@ export default function ProfilePage() {
 
   const handleRemovePic = async () => {
     try {
-      console.log("userInfo ", userInfo);
+      setActionLoading(true);
+
       if (!userInfo.photoPath) {
         toast.error("No photo to remove!");
         return;
       }
-      const userDocRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(userDocRef);
-      const path = docSnap.data()?.photoPath || "";
-      const storageRef = ref(storage, path);
+
+      const storageRef = ref(storage, profilePath);
       await deleteObject(storageRef);
-      await updateDoc(userDocRef, { photoURL: "", photoPath: "" });
+      await clearProfilePic();
       setImageUrl("");
       toast.success("Photo Removed !");
+      setActionLoading(false);
+      setProfileModal({ open: false, type: "" });
     } catch (err) {
+      setActionLoading(false);
       toast.error("Failed to Remove " + err.message);
     }
   };
@@ -70,13 +75,20 @@ export default function ProfilePage() {
   }
 
   useEffect(() => {
-    if (!user) return;
-    const unsubscribe = listenToProfilePic(user.uid, (url) => {
-      setImageUrl(url);
-    });
+    let unsubscribe;
+    if (!loading) {
+      if (!user) return;
+      unsubscribe = listenToProfilePic(user.uid, (url) => {
+        setImageUrl(url);
+      });
+    }
 
-    return () => unsubscribe();
-  }, [user]);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user, loading]);
 
   useEffect(() => {
     const handleClickOutSide = (e) => {
@@ -281,7 +293,20 @@ export default function ProfilePage() {
                 {profileModal.type == "change" && (
                   <>
                     <h3 className="mb-3">Change Profile Photo</h3>
-                    <UploadPhoto />
+                    <UploadPhoto
+                      onSuccess={() => {
+                        toast.success("Photo Uploaded");
+                        setActionLoading(false);
+                        setProfileModal({ open: false, type: "" });
+                      }}
+                      onError={(err) => {
+                        toast.error("Failed to Upload " + err.message);
+                        setActionLoading(false);
+                      }}
+                      onLoading={(val) => {
+                        setActionLoading(val);
+                      }}
+                    />
                   </>
                 )}
 
@@ -298,6 +323,16 @@ export default function ProfilePage() {
                       <FaTrash />
                       Confirm Remove
                     </button>
+                    {actionLoading && (
+                      <div className="d-flex justify-content-center align-items-center my-3">
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>

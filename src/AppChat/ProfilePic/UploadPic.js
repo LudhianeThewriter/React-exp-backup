@@ -4,9 +4,12 @@ import { storage, db } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { AuthContext } from "../../AuthContext";
 import { toast } from "react-toastify";
+import { useProfile } from "../ProfileContext";
 
-export function UploadPhoto() {
+export function UploadPhoto({ onLoading, onSuccess, onError }) {
   const { user } = useContext(AuthContext);
+  const { updateProfilePic } = useProfile();
+  const [uploading, setUploading] = useState(false);
   // const videoRef = useRef(null);
   const fileRef = useRef(null);
   const [preview, setPreview] = useState(null);
@@ -31,6 +34,8 @@ export function UploadPhoto() {
     if (!fileRef.current || !preview) return;
 
     try {
+      onLoading(true);
+      setUploading(true);
       if (!user) {
         alert("Login First");
         navigate("/user");
@@ -51,54 +56,25 @@ export function UploadPhoto() {
       // get download url
 
       const url = await getDownloadURL(storageRef);
+      const path = `users/${user.uid}/profile.${preview.ext}`;
 
       // SAve Url to firestore
 
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          photoURL: url,
-          photoPath: `users/${user.uid}/profile.${preview.ext}`,
-        },
-        { merge: true }
-      );
-      toast.success("Photo Uploaded");
+      await updateProfilePic(url, path);
+      onSuccess();
     } catch (err) {
-      toast.error("Failed To Upload " + err.message);
+      onError(err);
+    } finally {
+      setUploading(false);
+      onLoading(false);
     }
   };
-
-  // Handle Camera Access
-  /*
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        console.log("Full MediaStream:", stream);
-        console.log("Tracks:", stream.getTracks());
-        console.log("Video Tracks:", stream.getVideoTracks());
-        console.log("Audio Tracks:", stream.getAudioTracks());
-      }
-    } catch (err) {
-      toast.error("Failed to upload " + err.message);
-      console.log("Err :", err.message);
-    }
-  }*/
 
   useEffect(() => {
     return () => {
       if (preview?.imgUrl) {
         URL.revokeObjectURL(preview.imgUrl);
       }
-
-      /*   if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      }*/
     };
   }, [preview]);
   return (
@@ -107,28 +83,30 @@ export function UploadPhoto() {
         <hr />
         <div className="container mt-4 text-center">
           <h4>Upload Profile Photo</h4>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => handleFileChange(e)}
-            style={{ display: "none" }}
-            id="camerainput"
-          />
-          <label htmlFor="camerainput" className="btn btn-primary mt-2">
-            📷 Take Photo
-          </label>
+          <div className="d-flex justify-content-center gap-3 mt-3">
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => handleFileChange(e)}
+              style={{ display: "none" }}
+              id="camerainput"
+            />
+            <label htmlFor="camerainput" className="btn btn-primary mt-2">
+              📷 Take Photo
+            </label>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e)}
-            style={{ display: "none" }}
-            id="galleryinput"
-          />
-          <label htmlFor="galleryinput" className="btn btn-primary mt-2">
-            Upload from Gallery
-          </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange(e)}
+              style={{ display: "none" }}
+              id="galleryinput"
+            />
+            <label htmlFor="galleryinput" className="btn btn-primary mt-2">
+              Upload from Gallery
+            </label>
+          </div>
           {preview && (
             <>
               <div className="mt-3">
@@ -140,9 +118,18 @@ export function UploadPhoto() {
                   width="200"
                 />
               </div>
-              <button className="btn btn-success" onClick={handleUpload}>
-                Upload
-              </button>
+
+              {uploading ? (
+                <div className="d-flex justify-content-center align-items-center my-3">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              ) : (
+                <button className="btn btn-success" onClick={handleUpload}>
+                  Upload
+                </button>
+              )}
             </>
           )}
         </div>

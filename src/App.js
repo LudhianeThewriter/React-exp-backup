@@ -26,40 +26,44 @@ import ChatPage from "./AppChat/ChatPage";
 import ExplorePage from "./AppChat/ExplorePage";
 import PostPage from "./AppChat/PostPage";
 import { UploadPhoto } from "./AppChat/ProfilePic/UploadPic";
+import { ProfileProvider } from "./AppChat/ProfileContext";
 export default function App() {
   return (
     <AuthProvider>
-      <ExpenseProvider>
-        <BudgetProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/user" element={<UserReg />} />
-              <Route path="/dashboard" element={<DashBoard />} />
-              <Route path="/analysis" element={<AnalysisBot />} />
+      <ProfileProvider>
+        <ExpenseProvider>
+          <BudgetProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/user" element={<UserReg />} />
+                <Route path="/dashboard" element={<DashBoard />} />
+                <Route path="/analysis" element={<AnalysisBot />} />
 
-              <Route path="/addExp" element={<AddNew />} />
-              <Route path="/budget" element={<Budget />} />
+                <Route path="/addExp" element={<AddNew />} />
+                <Route path="/budget" element={<Budget />} />
 
-              <Route path="/report" element={<MonthlyReport />} />
+                <Route path="/report" element={<MonthlyReport />} />
 
-              <Route path="/adminpanel" element={<AdminDashboardPage />} />
-              <Route path="/pricing" element={<PricingPlans />} />
-              <Route path="/reportbug" element={<ReportBug />} />
-              <Route path="/public" element={<CommunityPage />}>
-                <Route index element={<PostPage />} /> {/* default */}
-                <Route path="profile" element={<ProfilePage />} />
-                <Route path="chat" element={<ChatPage />} />
-                <Route path="explore" element={<ExplorePage />} />
-                <Route path="post" element={<PostPage />} />
-              </Route>
-              <Route path="/uploadPic" element={<UploadPhoto />} />
-            </Routes>
+                <Route path="/adminpanel" element={<AdminDashboardPage />} />
+                <Route path="/pricing" element={<PricingPlans />} />
+                <Route path="/reportbug" element={<ReportBug />} />
 
-            <ToastContainer position="top-right" autoClose={3000} />
-          </BrowserRouter>
-        </BudgetProvider>
-      </ExpenseProvider>
+                <Route path="/public" element={<CommunityPage />}>
+                  <Route index element={<PostPage />} /> {/* default */}
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="chat" element={<ChatPage />} />
+                  <Route path="explore" element={<ExplorePage />} />
+                  <Route path="post" element={<PostPage />} />
+                </Route>
+                <Route path="/uploadPic" element={<UploadPhoto />} />
+              </Routes>
+
+              <ToastContainer position="top-right" autoClose={3000} />
+            </BrowserRouter>
+          </BudgetProvider>
+        </ExpenseProvider>
+      </ProfileProvider>
     </AuthProvider>
   );
 }
