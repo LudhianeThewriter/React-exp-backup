@@ -18,36 +18,23 @@ import { AuthContext } from "../AuthContext";
 import { image } from "framer-motion/client";
 import { UploadPhoto } from "./ProfilePic/UploadPic";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { listenToProfilePic } from "../FirebaseUtils";
+
 import { toast } from "react-toastify";
 import { useProfile } from "./ProfileContext";
 
 export default function ProfilePage() {
-  const { user, profilePath, clearProfilePic } = useProfile();
+  const { user, userInfo, loading } = useContext(AuthContext);
+  const { profilePath, clearProfilePic, uploadProfilePic } = useProfile();
+
   const [actionLoading, setActionLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-  const { userInfo, loading } = useContext(AuthContext);
+
   const [profileModal, setProfileModal] = useState({
     open: false,
     type: "",
   });
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-
-  const fetchProfilePic = async () => {
-    try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists && docSnap.data().photoURL) {
-        setImageUrl(docSnap.data().photoURL);
-      }
-    } catch (err) {
-      console.log("Loading err ", err);
-      alert("Failed to load ", err.message);
-    }
-
-    console.log("Deleting file at path:", userInfo.photoPath);
-  };
 
   const handleRemovePic = async () => {
     try {
@@ -64,7 +51,9 @@ export default function ProfilePage() {
       setImageUrl("");
       toast.success("Photo Removed !");
       setActionLoading(false);
-      setProfileModal({ open: false, type: "" });
+      setTimeout(() => {
+        setProfileModal({ open: false, type: "" });
+      }, 500);
     } catch (err) {
       setActionLoading(false);
       toast.error("Failed to Remove " + err.message);
@@ -73,22 +62,6 @@ export default function ProfilePage() {
   function handleShowHideDropdown() {
     setShowDropdown(!showDropdown);
   }
-
-  useEffect(() => {
-    let unsubscribe;
-    if (!loading) {
-      if (!user) return;
-      unsubscribe = listenToProfilePic(user.uid, (url) => {
-        setImageUrl(url);
-      });
-    }
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [user, loading]);
 
   useEffect(() => {
     const handleClickOutSide = (e) => {
@@ -112,12 +85,13 @@ export default function ProfilePage() {
     "https://via.placeholder.com/400x250",
   ];
 
-  // handle profile pic
-  const handleChange = () => {};
-  const handleView = () => {};
-  const handleAdd = () => {};
-  const handleRemove = () => {};
-  //-------
+  useEffect(() => {
+    if (!loading) {
+      if (userInfo?.photoURL) {
+        setImageUrl(userInfo?.photoURL);
+      }
+    }
+  }, [userInfo?.photoURL]);
 
   return (
     <div className="bg-dark text-light min-vh-100 py-5">
@@ -137,31 +111,52 @@ export default function ProfilePage() {
                   className="position-relative d-inline-block"
                   ref={dropdownRef}
                 >
-                  <img
-                    src={imageUrl}
-                    alt="profile"
-                    className="rounded-circle mb-3 shadow"
-                    style={{
-                      width: "120px",
-                      height: "120px",
-                      objectFit: "cover",
-                      border: "3px solid #fff",
-                      cursor: "pointer",
-                    }}
-                    onClick={handleShowHideDropdown}
-                  />
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="profile"
+                      className="rounded-circle mb-3 shadow"
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        objectFit: "cover",
+                        border: "3px solid #fff",
+                        cursor: "pointer",
+                      }}
+                      onClick={handleShowHideDropdown}
+                    />
+                  ) : (
+                    <FaUser
+                      className="rounded-circle mb-3 shadow"
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        objectFit: "cover",
+                        border: "3px solid #fff",
+                        cursor: "pointer",
+                      }}
+                      onClick={handleShowHideDropdown}
+                    />
+                  )}
 
                   {/*Three dots Option*/}
                   <Dropdown
                     show={showDropdown}
                     className="position-absolute"
-                    style={{ top: "5px", right: "5px" }}
+                    style={{
+                      top: "50px",
+                      left: "5px",
+                    }}
                   >
                     <Dropdown.Toggle as="div" style={{}}></Dropdown.Toggle>
 
                     <Dropdown.Menu
                       align="end"
-                      className="p-0 border border-primary rounded-border "
+                      className="p-0 border  rounded-border "
+                      style={{
+                        backgroundColor: "lightblue",
+                        color: "white",
+                      }}
                     >
                       <Dropdown.Item
                         onClick={() => {
@@ -170,7 +165,6 @@ export default function ProfilePage() {
                           setProfileModal({ open: true, type: "change" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
-                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaEdit /> Change
                       </Dropdown.Item>
@@ -181,7 +175,6 @@ export default function ProfilePage() {
                           setProfileModal({ open: true, type: "view" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border"
-                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaEye /> View
                       </Dropdown.Item>
@@ -192,13 +185,11 @@ export default function ProfilePage() {
                           setProfileModal({ open: true, type: "take" });
                         }}
                         className="d-flex align-items-center gap-2  fw-bold dropdown-item-custom rounded-border "
-                        style={{ borderBottom: "1px solid #0d6efd" }}
                       >
                         <FaPlus /> Take
                       </Dropdown.Item>
                       <Dropdown.Item
                         onClick={() => {
-                          handleRemove();
                           setShowDropdown(false);
                           setProfileModal({ open: true, type: "remove" });
                         }}
