@@ -15,9 +15,8 @@ import { Accordion, Dropdown } from "react-bootstrap";
 import { ref, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage, db } from "../firebase";
 import { AuthContext } from "../AuthContext";
-import { image } from "framer-motion/client";
+
 import { UploadPhoto } from "./ProfilePic/UploadPic";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { toast } from "react-toastify";
 import { useProfile } from "./ProfileContext";
@@ -51,9 +50,6 @@ export default function ProfilePage() {
       setImageUrl("");
       toast.success("Photo Removed !");
       setActionLoading(false);
-      setTimeout(() => {
-        setProfileModal({ open: false, type: "" });
-      }, 500);
     } catch (err) {
       setActionLoading(false);
       toast.error("Failed to Remove " + err.message);
@@ -160,7 +156,6 @@ export default function ProfilePage() {
                     >
                       <Dropdown.Item
                         onClick={() => {
-                          handleChange();
                           setShowDropdown(false);
                           setProfileModal({ open: true, type: "change" });
                         }}
@@ -170,7 +165,6 @@ export default function ProfilePage() {
                       </Dropdown.Item>
                       <Dropdown.Item
                         onClick={() => {
-                          handleView();
                           setShowDropdown(false);
                           setProfileModal({ open: true, type: "view" });
                         }}
@@ -180,7 +174,6 @@ export default function ProfilePage() {
                       </Dropdown.Item>
                       <Dropdown.Item
                         onClick={() => {
-                          handleAdd();
                           setShowDropdown(false);
                           setProfileModal({ open: true, type: "take" });
                         }}
@@ -273,11 +266,31 @@ export default function ProfilePage() {
                 {profileModal.type == "view" && (
                   <>
                     <h3 className="mb-3">View Profile Photo</h3>
-                    <img
-                      src={imageUrl}
-                      alt="profile"
-                      className="img-fluid rounded"
-                    />
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="profile"
+                        className="img-fluid rounded"
+                        style={{
+                          width: "200px",
+                          height: "200px",
+                          objectFit: "cover",
+                          border: "3px solid #fff",
+                          cursor: "pointer",
+                        }}
+                      />
+                    ) : (
+                      <FaUser
+                        className="rounded-circle mb-3 shadow"
+                        style={{
+                          width: "120px",
+                          height: "120px",
+                          objectFit: "cover",
+                          border: "3px solid #fff",
+                          cursor: "pointer",
+                        }}
+                      />
+                    )}
                   </>
                 )}
 
@@ -285,9 +298,10 @@ export default function ProfilePage() {
                   <>
                     <h3 className="mb-3">Change Profile Photo</h3>
                     <UploadPhoto
-                      onSuccess={() => {
+                      onSuccess={(url) => {
                         toast.success("Photo Uploaded");
                         setActionLoading(false);
+                        setImageUrl(url);
                         setProfileModal({ open: false, type: "" });
                       }}
                       onError={(err) => {

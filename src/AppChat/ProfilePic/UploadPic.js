@@ -61,7 +61,7 @@ export function UploadPhoto({ onLoading, onSuccess, onError }) {
       // SAve Url to firestore
 
       await updateProfilePic(url, path);
-      onSuccess();
+      onSuccess(url);
     } catch (err) {
       onError(err);
     } finally {
