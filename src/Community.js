@@ -51,10 +51,10 @@ export default function CommunityPage() {
   // Authenticate the user access
   useEffect(() => {
     if (!loading) {
-      if (!user || userInfo?.role != "admin") {
+      if (!user) {
         navigate("/user");
        
-        alert("Only Admins are allowed 345");
+        alert("Not Authorised !");
       }
     }
   }, [user, userInfo, loading]);

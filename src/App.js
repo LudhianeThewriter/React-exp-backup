@@ -27,10 +27,12 @@ import ExplorePage from "./AppChat/ExplorePage";
 import PostPage from "./AppChat/PostPage";
 import { UploadPhoto } from "./AppChat/ProfilePic/UploadPic";
 import { ProfileProvider } from "./AppChat/ProfileContext";
+import {FriendProvider} from './AppChat/FriendContext'
 export default function App() {
   return (
     <AuthProvider>
       <ProfileProvider>
+        <FriendProvider>
         <ExpenseProvider>
           <BudgetProvider>
             <BrowserRouter>
@@ -63,6 +65,7 @@ export default function App() {
             </BrowserRouter>
           </BudgetProvider>
         </ExpenseProvider>
+        </FriendProvider>
       </ProfileProvider>
     </AuthProvider>
   );
