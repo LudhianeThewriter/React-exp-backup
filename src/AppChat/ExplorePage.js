@@ -3,11 +3,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { db } from "../firebase";
 import {
   collection,
+  addDoc,
   getDocs,
   doc,
   setDoc,
   arrayUnion,
+  onSnapshot,
   serverTimestamp,
+  deleteDoc,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { AuthContext } from "../AuthContext";
@@ -29,68 +32,53 @@ export default function ExplorePage() {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { friendData } = useFriend();
-  let alreadyRequested;
+  const { sentReq, reqLoading } = useFriend();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const userCollection = collection(db, "users");
-        const snapShot = await getDocs(userCollection);
-        const userList = snapShot.docs.map((doc) => ({
+    if (!user) return;
+    const coll = collection(db, "users");
+    const unsubscribe = onSnapshot(
+      coll,
+      (snapshot) => {
+        const userList = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        console.log("User list : ", userList);
-
-        setUsers(userList);
-      } catch (err) {
-        toast.error("Failed to load : " + err.message);
-      } finally {
+        const filtered = userList.filter((doc) => doc.id !== user.uid);
+        setUsers(filtered);
+        setLoading(false);
+      },
+      (err) => {
+        toast.error("Failed to Load " + err.message);
         setLoading(false);
       }
-    };
+    );
 
-    fetchUsers();
-
-    console.log("Friend Data :", friendData);
-  }, []);
+    return () => unsubscribe();
+  }, [user]);
 
   // Dummy user data
 
   // Handle Friend Request
   const handleSendRequest = async (target) => {
-    console.log("Target user : ", target);
-    if (friendData) {
-      alreadyRequested = friendData.request?.some(
-        (req) => req.TARGET_UID == target.id
+    try {
+      const existingReq = sentReq.find(
+        (req) => req.TARGET_USER_UID == target.id && req.status == "pending"
       );
 
-      if (alreadyRequested) {
-        toast.info("Request already sent");
+      if (existingReq) {
+        await deleteDoc(doc(db, "friendRequests", existingReq.id));
         return;
       }
-    }
-    try {
-      const senderDocRef = doc(db, "friendDB", user.uid);
 
-      const requestObject = {
-        TARGET_UID: target.id,
+      await addDoc(collection(db, "friendRequests"), {
+        BASE_USER_UID: user.uid,
+        BASE_USER_EMAIL: user.email,
+        TARGET_USER_UID: target.id,
         TARGET_USER_EMAIL: target.email,
         status: "pending",
         sentAt: new Date(),
-      };
-
-      await setDoc(
-        senderDocRef,
-        {
-          BASE_USER_UID: user.uid,
-          BASE_USER_EMAIL: user.email,
-          request: arrayUnion(requestObject),
-          friendList: [],
-        },
-        { merge: true }
-      );
+      });
       toast.success("Friend Requent Sent");
     } catch (err) {
       toast.error("Request not Sent");
@@ -122,7 +110,11 @@ export default function ExplorePage() {
       {/* Explore Grid */}
       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 p-3">
         {loading ? (
-          <div className="text-center text-muted mt-4">Loading users...</div>
+          <div className="d-flex justify-content-center align-items-center w-100 mt-5">
+            <div className="spinner-border text-light" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
         ) : (
           filteredUsers.map((user) => (
             <div className="col" key={user.id}>
@@ -160,27 +152,16 @@ export default function ExplorePage() {
                   <h5 className="card-title">{user.username}</h5>
                   <button
                     className={`btn ${
-                      friendData?.request?.some(
-                        (req) => req.TARGET_UID == user.id
-                      )
-                        ? "btn-success"
-                        : "btn-outline-light"
+                      sentReq.some((req) => req.TARGET_USER_UID == user.id)
+                        ? "btn-warning"
+                        : "btn-outline"
                     }`}
-                    disabled={
-                      friendData?.request?.some(
-                        (req) => req.TARGET_UID == user.id
-                      )
-                        ? true
-                        : false
-                    }
                     onClick={() => {
                       handleSendRequest(user);
                     }}
                   >
-                    {friendData?.request?.some(
-                      (req) => req.TARGET_UID == user.id
-                    )
-                      ? "Requested"
+                    {sentReq.some((req) => req.TARGET_USER_UID == user.id)
+                      ? "Unsent Request"
                       : "Send Request"}
                   </button>
                 </div>

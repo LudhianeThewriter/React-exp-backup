@@ -10,6 +10,7 @@ import {
   FaTrash,
   FaThumbsUp,
   FaThumbsDown,
+  FaBell,
 } from "react-icons/fa";
 import { Accordion, Dropdown } from "react-bootstrap";
 import { ref, getDownloadURL, deleteObject } from "firebase/storage";
@@ -34,6 +35,13 @@ export default function ProfilePage() {
   });
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: "Alice sent you a friend request" },
+    { id: 2, text: "Bob liked your post" },
+    { id: 3, text: "Charlie commented: Nice!" },
+  ]);
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
 
   const handleRemovePic = async () => {
     try {
@@ -91,6 +99,20 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-dark text-light min-vh-100 py-5">
+      {/*Notification bell */}
+      <div className="position-fixed top-0 end-0 p-3" style={{ zindex: 1100 }}>
+        <div
+          className="btn btn-dark position-relative"
+          onClick={() => setShowNotifPanel(true)}
+        >
+          <FaBell size={22} />
+          {notifications.length > 0 && (
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-badge">
+              {notifications.length}
+            </span>
+          )}
+        </div>
+      </div>
       <div className="container">
         <div className="row g-4">
           {/* Left Column */}
