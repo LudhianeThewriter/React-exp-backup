@@ -167,6 +167,8 @@ ul li {
 }
 .notif-sidebar.open {
   right: 0;
+  width: auto;
+  min-width: 300px;
 }
 
 /* Overlay behind sidebar */

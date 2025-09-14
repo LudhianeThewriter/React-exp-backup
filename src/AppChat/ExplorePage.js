@@ -11,6 +11,7 @@ import {
   onSnapshot,
   serverTimestamp,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { AuthContext } from "../AuthContext";
@@ -32,7 +33,7 @@ export default function ExplorePage() {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { sentReq, reqLoading } = useFriend();
+  const { sentReq, rcdReq } = useFriend();
 
   useEffect(() => {
     if (!user) return;
@@ -62,15 +63,38 @@ export default function ExplorePage() {
   // Handle Friend Request
   const handleSendRequest = async (target) => {
     try {
+      //1) you already sent request
       const existingReq = sentReq.find(
-        (req) => req.TARGET_USER_UID == target.id && req.status == "pending"
+        (req) => req.TARGET_USER_UID == target.id
       );
 
       if (existingReq) {
-        await deleteDoc(doc(db, "friendRequests", existingReq.id));
-        return;
+        if (existingReq.status == "pending") {
+          toast.error("Request already sent");
+          return;
+        }
+
+        if (existingReq.status == "decline") {
+          await deleteDoc(doc(db, "friendRequests", existingReq.id));
+        }
       }
 
+      //2) They already sent you request
+
+      const existingRecd = rcdReq.find((req) => req.BASE_USER_UID == target.id);
+      if (existingRecd) {
+        if (existingRecd.status == "pending") {
+          await updateDoc(doc(db, "friendRequests", existingRecd.id), {
+            status: "accept",
+          });
+          toast.success("Friend Request Accepted");
+          return;
+        }
+
+        if (existingRecd.status == "decline") {
+          await deleteDoc(doc(db, "friendRequests", existingReceived.id));
+        }
+      }
       await addDoc(collection(db, "friendRequests"), {
         BASE_USER_UID: user.uid,
         BASE_USER_EMAIL: user.email,
@@ -116,8 +140,8 @@ export default function ExplorePage() {
             </div>
           </div>
         ) : (
-          filteredUsers.map((user) => (
-            <div className="col" key={user.id}>
+          filteredUsers.map((person) => (
+            <div className="col" key={person.id}>
               <div
                 className="card h-100  border-light"
                 style={{
@@ -125,11 +149,11 @@ export default function ExplorePage() {
                   color: "#0A2540",
                 }}
               >
-                {user.photoURL ? (
+                {person.photoURL ? (
                   <img
-                    src={user.photoURL}
+                    src={person.photoURL}
                     className="card-img-top rounded-circle mx-auto mt-3"
-                    alt={user.username}
+                    alt={person.username}
                     style={{
                       width: "100px",
                       height: "100px",
@@ -149,20 +173,65 @@ export default function ExplorePage() {
                   />
                 )}
                 <div className="card-body text-center">
-                  <h5 className="card-title">{user.username}</h5>
+                  <h5 className="card-title">{person.username}</h5>
                   <button
-                    className={`btn ${
-                      sentReq.some((req) => req.TARGET_USER_UID == user.id)
-                        ? "btn-warning"
-                        : "btn-outline"
-                    }`}
+                    className={`btn ${(() => {
+                      const request = sentReq.find(
+                        (req) => req.TARGET_USER_UID == person.id
+                      );
+
+                      const requestRcd = rcdReq.find(
+                        (req) => req.BASE_USER_UID == person.id
+                      );
+
+                      if (!request && !requestRcd) return "btn-outline-light";
+                      if (
+                        request?.status == "accept" ||
+                        requestRcd?.status == "accept"
+                      )
+                        return "btn-success";
+                      if (
+                        request?.status == "decline" ||
+                        requestRcd?.status == "decline"
+                      )
+                        return "btn-danger";
+
+                      if (request?.status === "pending") return "btn-warning";
+                      if (requestRcd?.status === "pending") return "btn-info";
+
+                      return "Send Request ";
+                    })()}`}
                     onClick={() => {
-                      handleSendRequest(user);
+                      handleSendRequest(person);
                     }}
                   >
-                    {sentReq.some((req) => req.TARGET_USER_UID == user.id)
-                      ? "Unsent Request"
-                      : "Send Request"}
+                    {(() => {
+                      const request = sentReq.find(
+                        (req) => req.TARGET_USER_UID == person.id
+                      );
+
+                      const requestRcd = rcdReq.find(
+                        (req) => req.BASE_USER_UID == person.id
+                      );
+
+                      if (!request && !requestRcd) return "Send Request ";
+                      if (
+                        request?.status == "accept" ||
+                        requestRcd?.status == "accept"
+                      )
+                        return "Friend";
+                      if (
+                        request?.status == "decline" ||
+                        requestRcd?.status == "decline"
+                      )
+                        return "Send Request Again";
+
+                      if (request?.status === "pending") return "Requested";
+                      if (requestRcd?.status === "pending")
+                        return "Friend Request";
+
+                      return "Send Request ";
+                    })()}
                   </button>
                 </div>
               </div>

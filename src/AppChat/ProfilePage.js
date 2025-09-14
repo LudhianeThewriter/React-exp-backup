@@ -16,6 +16,8 @@ import { Accordion, Dropdown } from "react-bootstrap";
 import { ref, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage, db } from "../firebase";
 import { AuthContext } from "../AuthContext";
+import { useFriend } from "./FriendContext";
+import { doc, updateDoc } from "firebase/firestore";
 
 import { UploadPhoto } from "./ProfilePic/UploadPic";
 
@@ -36,11 +38,12 @@ export default function ProfilePage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "Alice sent you a friend request" },
-    { id: 2, text: "Bob liked your post" },
-    { id: 3, text: "Charlie commented: Nice!" },
-  ]);
+  const { rcdReq, sentReq } = useFriend();
+  let notifyLength =
+    rcdReq.length +
+    sentReq.filter((req) => req.status == "accept" || req.status == "decline")
+      .length;
+
   const [showNotifPanel, setShowNotifPanel] = useState(false);
 
   const handleRemovePic = async () => {
@@ -97,6 +100,25 @@ export default function ProfilePage() {
     }
   }, [userInfo?.photoURL]);
 
+  // handle request status
+
+  const handleRequestStatus = async (docId, action, friend) => {
+    if (!docId || !action) return;
+
+    try {
+      const docRef = doc(db, "friendRequests", docId);
+      if (action == "accept") {
+        await updateDoc(docRef, { status: "accept" });
+        toast.success(`Your new Friend ${friend}`);
+      } else if (action == "decline") {
+        await updateDoc(docRef, { status: "decline" });
+        toast.info("Request Declined");
+      }
+    } catch (err) {
+      toast.error("Request Failed");
+    }
+  };
+
   return (
     <div className="bg-dark text-light min-vh-100 py-5">
       {/*Notification bell */}
@@ -106,9 +128,9 @@ export default function ProfilePage() {
           onClick={() => setShowNotifPanel(true)}
         >
           <FaBell size={22} />
-          {notifications.length > 0 && (
+          {notifyLength > 0 && (
             <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-badge">
-              {notifications.length}
+              {notifyLength}
             </span>
           )}
         </div>
@@ -427,6 +449,83 @@ export default function ProfilePage() {
             </div>
           </div>
           {/* Right column ends */}
+        </div>
+      </div>
+
+      {/* Notification Sidebar */}
+      <div className={`notif-sidebar ${showNotifPanel ? "open" : ""}`}>
+        {/*Notify header */}
+        <div className="notif-header d-flex justify-content-between align-items-center p-3 border-bottom">
+          <h5 className="m-0">Notifications</h5>
+          <button
+            className="btn btn-sm btn-outline-light"
+            onClick={() => setShowNotifPanel(false)}
+          >
+            {" "}
+            ✖
+          </button>
+        </div>
+
+        {/*Notify body */}
+        <div className="notif-body p-3">
+          {notifyLength === 0 ? (
+            <p className="text-muted">No Notifications</p>
+          ) : (
+            <ul className="list-unstyled m-0">
+              {rcdReq.map((notif) => (
+                <li
+                  className="p-2 mb-2 rounded shadow-sm"
+                  key={notif.id}
+                  style={{ backgroundColor: "#1f1f1f" }}
+                >
+                  {notif.BASE_USER_EMAIL}{" "}
+                  {notif.status == "pending" && "send you friend Request"}
+                  {notif.status == "accept" && "is your new Friend"}{" "}
+                  {notif.status == "decline" && "Request decline"}
+                  <br />
+                  {notif.status == "pending" && (
+                    <div className="mt-2 d-flex gap-2">
+                      <button
+                        className="btn btn-success btn-sm px-3"
+                        onClick={() =>
+                          handleRequestStatus(
+                            notif.id,
+                            "accept",
+                            notif.BASE_USER_EMAIL
+                          )
+                        }
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm px-3"
+                        onClick={() =>
+                          handleRequestStatus(
+                            notif.id,
+                            "decline",
+                            notif.BASE_USER_EMAIL
+                          )
+                        }
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+              {sentReq.map((notif) => (
+                <li
+                  className="p-2 mb-2 rounded shadow-sm"
+                  key={notif.id}
+                  style={{ backgroundColor: "#1f1f1f" }}
+                >
+                  {notif.TARGET_USER_EMAIL}{" "}
+                  {notif.status == "decline" && " decline your friend request"}
+                  {notif.status == "accept" && " accepted your friend request"}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
