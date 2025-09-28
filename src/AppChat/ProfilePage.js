@@ -478,7 +478,7 @@ export default function ProfilePage() {
                   key={notif.id}
                   style={{ backgroundColor: "#1f1f1f" }}
                 >
-                  {notif.BASE_USER_EMAIL}{" "}
+                  {notif.BASE_USER_NAME}{" "}
                   {notif.status == "pending" && "send you friend Request"}
                   {notif.status == "accept" && "is your new Friend"}{" "}
                   {notif.status == "decline" && "Request decline"}
@@ -519,7 +519,7 @@ export default function ProfilePage() {
                   key={notif.id}
                   style={{ backgroundColor: "#1f1f1f" }}
                 >
-                  {notif.TARGET_USER_EMAIL}{" "}
+                  {notif.TARGET_USER_NAME}{" "}
                   {notif.status == "decline" && " decline your friend request"}
                   {notif.status == "accept" && " accepted your friend request"}
                 </li>

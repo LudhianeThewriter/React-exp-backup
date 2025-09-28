@@ -63,6 +63,16 @@ export default function ExplorePage() {
   // Handle Friend Request
   const handleSendRequest = async (target) => {
     try {
+      const userDoc = await getDocs(collection(db, "users"));
+      const currentUserData = userDoc.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .find((u) => u.id == user.uid);
+
+      console.log("currentUserData ", currentUserData);
+
       //1) you already sent request
       const existingReq = sentReq.find(
         (req) => req.TARGET_USER_UID == target.id
@@ -92,14 +102,16 @@ export default function ExplorePage() {
         }
 
         if (existingRecd.status == "decline") {
-          await deleteDoc(doc(db, "friendRequests", existingReceived.id));
+          await deleteDoc(doc(db, "friendRequests", existingRecd.id));
         }
       }
       await addDoc(collection(db, "friendRequests"), {
         BASE_USER_UID: user.uid,
-        BASE_USER_EMAIL: user.email,
+        BASE_USER_NAME: currentUserData.username,
+        BASE_USER_PHOTO: currentUserData.photoURL,
         TARGET_USER_UID: target.id,
-        TARGET_USER_EMAIL: target.email,
+        TARGET_USER_NAME: target.username,
+        TARGET_USER_PHOTO: target.photoURL,
         status: "pending",
         sentAt: new Date(),
       });
@@ -204,6 +216,18 @@ export default function ExplorePage() {
                     onClick={() => {
                       handleSendRequest(person);
                     }}
+                    disabled={(() => {
+                      const request = sentReq.find(
+                        (req) => req.TARGET_USER_UID == person.id
+                      );
+                      const requestRcd = rcdReq.find(
+                        (req) => req.BASE_USER_UID == person.id
+                      );
+                      return (
+                        request?.status === "accept" ||
+                        requestRcd?.status === "accept"
+                      );
+                    })()}
                   >
                     {(() => {
                       const request = sentReq.find(
