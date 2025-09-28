@@ -69,11 +69,6 @@ export default function ChatPage() {
     };
   }, [user?.uid]);
 
-  const friends = [
-    { id: 1, name: "Alice" },
-    { id: 2, name: "Bob" },
-    { id: 3, name: "Charlie" },
-  ];
   // LOAD MESSAGES FOR selectedFriend
   useEffect(() => {
     if (!selectedFriend) return;
@@ -83,6 +78,8 @@ export default function ChatPage() {
       selectedFriend.id,
       "messages"
     );
+
+    console.log("selectedFriend ", selectedFriend);
 
     const queryMsg = query(messageRef, orderBy("timestamp", "asc"));
 
@@ -117,39 +114,43 @@ export default function ChatPage() {
     setNewMessage("");
   };
   return (
-    <div className="d-flex vh-100 bg-dark text-light">
+    <div className="d-flex flex-column flex-md-row vh-100 bg-dark text-light">
       {/* Friends List */}
-      <div className="bg-secondary p-3" style={{ width: "250px" }}>
-        <h5 className="mb-3">Chats</h5>
-        {friendList.map((friend) => {
-          // Determine who is the friend (the other user)
-          const isBase = friend.BASE_USER_UID === user.uid;
-          const friendPhoto = isBase
-            ? friend.TARGET_USER_PHOTO
-            : friend.BASE_USER_PHOTO;
-          const friendName = isBase
-            ? friend.TARGET_USER_NAME
-            : friend.BASE_USER_NAME;
+      <div
+        className="bg-secondary p-3 flex-shrink-0"
+        style={{ width: "250px", minHeight: "200px" }}
+      >
+        <h5 className="mb-3 text-center">Chats</h5>
+        <div className="d-flex flex-column">
+          {friendList.map((friend) => {
+            const isBase = friend.BASE_USER_UID === user.uid;
+            const friendPhoto = isBase
+              ? friend.TARGET_USER_PHOTO
+              : friend.BASE_USER_PHOTO;
+            const friendName = isBase
+              ? friend.TARGET_USER_NAME
+              : friend.BASE_USER_NAME;
 
-          return (
-            <div
-              key={friend.id}
-              className={`d-flex align-items-center p-2 rounded mb-2 ${
-                selectedFriend?.id === friend.id ? "bg-dark" : "bg-secondary"
-              }`}
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedFriend(friend)}
-            >
-              <img
-                src={friendPhoto}
-                alt={friendName}
-                className="rounded-circle me-2"
-                style={{ width: "40px", height: "40px", objectFit: "cover" }}
-              />
-              <span>{friendName}</span>
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={friend.id}
+                className={`d-flex align-items-center p-2 rounded mb-2 ${
+                  selectedFriend?.id === friend.id ? "bg-dark" : "bg-secondary"
+                }`}
+                style={{ cursor: "pointer", transition: "background 0.2s" }}
+                onClick={() => setSelectedFriend(friend)}
+              >
+                <img
+                  src={friendPhoto}
+                  alt={friendName}
+                  className="rounded-circle me-2"
+                  style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                />
+                <span>{friendName}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Chat Panel */}
@@ -161,9 +162,18 @@ export default function ChatPage() {
                 ? selectedFriend.TARGET_USER_NAME
                 : selectedFriend.BASE_USER_NAME}
             </h5>
-            <div className="flex-grow-1 overflow-auto mb-3">
+
+            {/* Chat Messages */}
+            <div
+              className="flex-grow-1 overflow-auto mb-3"
+              style={{
+                minHeight: "200px",
+                maxHeight: "calc(100vh - 160px)", // adjustable height based on screen
+              }}
+            >
               {(messages[selectedFriend.id] || []).map((msg) => {
-                const isMe = msg.senderUid == user.uid;
+                console.log("Messages ", messages);
+                const isMe = msg.senderUid === user.uid;
 
                 return (
                   <div
@@ -178,28 +188,24 @@ export default function ChatPage() {
                           ? "bg-primary text-white"
                           : "bg-secondary text-white"
                       }`}
-                      style={{ maxWidth: "70%" }}
+                      style={{ maxWidth: "70%", wordBreak: "break-word" }}
                     >
                       {msg.text}
                     </div>
-                    <small
-                      className="text-muted mt-1"
-                      style={{ fontSize: "0.7rem" }}
-                    >
-                      hy
-                      {formatTime}
-                    </small>
                   </div>
                 );
               })}
             </div>
-            <div className="d-flex">
+
+            {/* Input Box */}
+            <div className="d-flex mt-auto">
               <input
                 type="text"
                 className="form-control bg-secondary text-white"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
+                style={{ flex: 1 }}
               />
               <button className="btn btn-primary ms-2" onClick={handleSend}>
                 Send
